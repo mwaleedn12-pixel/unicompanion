@@ -12,24 +12,20 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/explore/presentation/screens/university_detail_screen.dart';
+import '../../features/tools/presentation/screens/tools_screen.dart';
+import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: RouteNames.splash,
     debugLogDiagnostics: true,
     routes: [
-      // Splash — decides where to go
       GoRoute(path: RouteNames.splash, name: 'splash', builder: (context, state) => const SplashScreen()),
-
-      // Auth
       GoRoute(path: RouteNames.login, name: 'login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: RouteNames.register, name: 'register', builder: (context, state) => const RegisterScreen()),
       GoRoute(path: RouteNames.forgotPassword, name: 'forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
-
-      // Onboarding
       GoRoute(path: RouteNames.onboarding, name: 'onboarding', builder: (context, state) => const OnboardingScreen()),
 
-      // Main App Shell
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
@@ -54,9 +50,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             GoRoute(
               path: RouteNames.tools,
               name: 'tools',
-              builder: (context, state) => const _PlaceholderScreen(title: 'Tools'),
+              builder: (context, state) => const ToolsScreen(),
               routes: [
-                GoRoute(path: 'gpa', name: 'gpa-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'GPA Calculator')),
+                GoRoute(path: 'gpa', name: 'gpa-calculator', builder: (context, state) => const GpaCalculatorScreen()),
                 GoRoute(path: 'cgpa', name: 'cgpa-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'CGPA Calculator')),
                 GoRoute(path: 'merit', name: 'merit-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Merit Calculator')),
                 GoRoute(path: 'attendance', name: 'attendance-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Attendance')),
