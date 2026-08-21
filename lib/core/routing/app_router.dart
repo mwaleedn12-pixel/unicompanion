@@ -19,6 +19,8 @@ import '../../features/tools/presentation/screens/attendance_calculator_screen.d
 import '../../features/tools/presentation/screens/target_gpa_screen.dart';
 import '../../features/tools/presentation/screens/merit_calculator_screen.dart';
 import '../../features/tools/presentation/screens/eligibility_checker_screen.dart';
+import '../../features/track/presentation/screens/track_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -63,26 +65,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.track, name: 'track', builder: (context, state) => const _PlaceholderScreen(title: 'Track')),
+            GoRoute(path: RouteNames.track, name: 'track', builder: (context, state) => const TrackScreen()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.profile, name: 'profile', builder: (context, state) => const _PlaceholderScreen(title: 'Profile')),
+            GoRoute(path: RouteNames.profile, name: 'profile', builder: (context, state) => const ProfileScreen()),
           ]),
         ],
       ),
     ],
   );
 });
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const _PlaceholderScreen({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text(title, style: Theme.of(context).textTheme.headlineMedium)),
-    );
-  }
-}
