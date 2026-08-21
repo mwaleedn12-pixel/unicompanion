@@ -14,6 +14,7 @@ import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/explore/presentation/screens/university_detail_screen.dart';
 import '../../features/tools/presentation/screens/tools_screen.dart';
 import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
+import '../../features/tools/presentation/screens/cgpa_calculator_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -38,11 +39,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               name: 'explore',
               builder: (context, state) => const ExploreScreen(),
               routes: [
-                GoRoute(
-                  path: 'university/:id',
-                  name: 'university-detail',
-                  builder: (context, state) => UniversityDetailScreen(universityId: state.pathParameters['id']!),
-                ),
+                GoRoute(path: 'university/:id', name: 'university-detail', builder: (context, state) => UniversityDetailScreen(universityId: state.pathParameters['id']!)),
               ],
             ),
           ]),
@@ -53,7 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               builder: (context, state) => const ToolsScreen(),
               routes: [
                 GoRoute(path: 'gpa', name: 'gpa-calculator', builder: (context, state) => const GpaCalculatorScreen()),
-                GoRoute(path: 'cgpa', name: 'cgpa-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'CGPA Calculator')),
+                GoRoute(path: 'cgpa', name: 'cgpa-calculator', builder: (context, state) => const CgpaCalculatorScreen()),
                 GoRoute(path: 'merit', name: 'merit-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Merit Calculator')),
                 GoRoute(path: 'attendance', name: 'attendance-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Attendance')),
                 GoRoute(path: 'target-gpa', name: 'target-gpa', builder: (context, state) => const _PlaceholderScreen(title: 'Target GPA')),
