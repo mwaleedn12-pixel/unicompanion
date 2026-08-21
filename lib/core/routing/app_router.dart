@@ -10,6 +10,7 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final user = ref.watch(currentUserProvider);
@@ -24,20 +25,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == RouteNames.forgotPassword;
       final isOnboarding = state.matchedLocation == RouteNames.onboarding;
 
-      // Not logged in → go to login
       if (!isLoggedIn && !isAuthRoute) return RouteNames.login;
-
-      // Logged in but on auth page → check onboarding
       if (isLoggedIn && isAuthRoute) {
         final onboardingDone = LocalStorageService.isOnboardingComplete;
         return onboardingDone ? RouteNames.home : RouteNames.onboarding;
       }
-
-      // Logged in, not on auth, check onboarding
       if (isLoggedIn && !isOnboarding && !LocalStorageService.isOnboardingComplete) {
         return RouteNames.onboarding;
       }
-
       return null;
     },
     routes: [
@@ -50,13 +45,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.home, name: 'home', builder: (context, state) => const _PlaceholderScreen(title: 'Home')),
+            GoRoute(path: RouteNames.home, name: 'home', builder: (context, state) => const HomeScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: RouteNames.explore, name: 'explore', builder: (context, state) => const _PlaceholderScreen(title: 'Explore')),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.tools, name: 'tools', builder: (context, state) => const _PlaceholderScreen(title: 'Tools')),
+            GoRoute(
+              path: RouteNames.tools,
+              name: 'tools',
+              builder: (context, state) => const _PlaceholderScreen(title: 'Tools'),
+              routes: [
+                GoRoute(path: 'gpa', name: 'gpa-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'GPA Calculator')),
+                GoRoute(path: 'cgpa', name: 'cgpa-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'CGPA Calculator')),
+                GoRoute(path: 'merit', name: 'merit-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Merit Calculator')),
+                GoRoute(path: 'attendance', name: 'attendance-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Attendance')),
+                GoRoute(path: 'target-gpa', name: 'target-gpa', builder: (context, state) => const _PlaceholderScreen(title: 'Target GPA')),
+                GoRoute(path: 'eligibility', name: 'eligibility-checker', builder: (context, state) => const _PlaceholderScreen(title: 'Eligibility')),
+              ],
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: RouteNames.track, name: 'track', builder: (context, state) => const _PlaceholderScreen(title: 'Track')),
