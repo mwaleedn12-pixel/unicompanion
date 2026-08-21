@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/supabase_service.dart';
+import '../services/local_storage_service.dart';
 import 'route_names.dart';
 import 'app_shell.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final user = ref.watch(currentUserProvider);
@@ -20,34 +22,32 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isAuthRoute = state.matchedLocation == RouteNames.login ||
           state.matchedLocation == RouteNames.register ||
           state.matchedLocation == RouteNames.forgotPassword;
+      final isOnboarding = state.matchedLocation == RouteNames.onboarding;
 
+      // Not logged in → go to login
       if (!isLoggedIn && !isAuthRoute) return RouteNames.login;
-      if (isLoggedIn && isAuthRoute) return RouteNames.home;
+
+      // Logged in but on auth page → check onboarding
+      if (isLoggedIn && isAuthRoute) {
+        final onboardingDone = LocalStorageService.isOnboardingComplete;
+        return onboardingDone ? RouteNames.home : RouteNames.onboarding;
+      }
+
+      // Logged in, not on auth, check onboarding
+      if (isLoggedIn && !isOnboarding && !LocalStorageService.isOnboardingComplete) {
+        return RouteNames.onboarding;
+      }
+
       return null;
     },
     routes: [
-      // Auth Routes
-      GoRoute(
-        path: RouteNames.login,
-        name: 'login',
-        builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: RouteNames.register,
-        name: 'register',
-        builder: (context, state) => const RegisterScreen(),
-      ),
-      GoRoute(
-        path: RouteNames.forgotPassword,
-        name: 'forgot-password',
-        builder: (context, state) => const ForgotPasswordScreen(),
-      ),
+      GoRoute(path: RouteNames.login, name: 'login', builder: (context, state) => const LoginScreen()),
+      GoRoute(path: RouteNames.register, name: 'register', builder: (context, state) => const RegisterScreen()),
+      GoRoute(path: RouteNames.forgotPassword, name: 'forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
+      GoRoute(path: RouteNames.onboarding, name: 'onboarding', builder: (context, state) => const OnboardingScreen()),
 
-      // Main App Shell
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
-          return AppShell(navigationShell: navigationShell);
-        },
+        builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(routes: [
             GoRoute(path: RouteNames.home, name: 'home', builder: (context, state) => const _PlaceholderScreen(title: 'Home')),

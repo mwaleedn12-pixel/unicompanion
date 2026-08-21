@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/routing/route_names.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/common_widgets.dart';
@@ -49,86 +50,172 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       next.when(
         initial: () {},
         loading: () {},
-        success: (_) => context.go(RouteNames.home),
+        success: (_) {},
         error: (msg) => context.showSnackBar(msg, isError: true),
       );
     });
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: AppSpacing.screenPaddingAll,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const AuthHeader(
-                  title: 'Welcome Back',
-                  subtitle: 'Sign in to continue your journey',
-                ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.primarySurface, Colors.white],
+            stops: [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 48),
 
-                // Google Sign-In
-                GoogleSignInButton(
-                  onPressed: _handleGoogleLogin,
-                  isLoading: authState.isLoading,
-                ),
-
-                const SizedBox(height: AppSpacing.xl),
-                const OrDivider(),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Email
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.email,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                ),
-                const SizedBox(height: AppSpacing.base),
-
-                // Password
-                PasswordField(
-                  controller: _passwordController,
-                  validator: Validators.password,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-
-                // Forgot Password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.push(RouteNames.forgotPassword),
-                    child: const Text('Forgot Password?'),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-
-                // Login Button
-                PrimaryButton(
-                  text: 'Sign In',
-                  isLoading: authState.isLoading,
-                  onPressed: _handleLogin,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Register Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Don't have an account? ", style: Theme.of(context).textTheme.bodyMedium),
-                    GestureDetector(
-                      onTap: () => context.push(RouteNames.register),
-                      child: Text(
-                        'Sign Up',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                  // Logo & Title
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.primary, AppColors.primaryLight],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
+                      child: const Icon(Icons.school_rounded, color: Colors.white, size: 40),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'UniCompanion',
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Your academic journey starts here',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondaryLight,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Card container for form
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('Welcome Back', style: Theme.of(context).textTheme.headlineMedium),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Sign in to your account',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Email
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: Validators.email,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.email_outlined, size: 20, color: AppColors.textTertiaryLight),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Password
+                        PasswordField(
+                          controller: _passwordController,
+                          validator: Validators.password,
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Forgot Password
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () => context.push(RouteNames.forgotPassword),
+                            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                            child: const Text('Forgot Password?', style: TextStyle(fontSize: 13)),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Login Button
+                        PrimaryButton(
+                          text: 'Sign In',
+                          isLoading: authState.isLoading,
+                          onPressed: _handleLogin,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  const OrDivider(),
+                  const SizedBox(height: 24),
+
+                  // Google Sign-In
+                  GoogleSignInButton(
+                    onPressed: _handleGoogleLogin,
+                    isLoading: authState.isLoading,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Register Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Don't have an account? ", style: Theme.of(context).textTheme.bodyMedium),
+                      GestureDetector(
+                        onTap: () => context.push(RouteNames.register),
+                        child: Text(
+                          'Sign Up',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: AppColors.primary,
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColors.primary,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
         ),

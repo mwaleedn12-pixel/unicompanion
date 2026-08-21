@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/routing/route_names.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/common_widgets.dart';
@@ -54,99 +55,179 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       next.when(
         initial: () {},
         loading: () {},
-        success: (_) {
-          context.showSuccessSnackBar('Account created! Please verify your email.');
-          context.go(RouteNames.home);
-        },
+        success: (_) {},
         error: (msg) => context.showSnackBar(msg, isError: true),
       );
     });
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: AppSpacing.screenPaddingAll,
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const AuthHeader(
-                  title: 'Create Account',
-                  subtitle: 'Start your academic journey today',
-                ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.secondarySurface, Colors.white],
+            stops: [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 32),
 
-                // Google Sign-In
-                GoogleSignInButton(
-                  onPressed: _handleGoogleSignIn,
-                  isLoading: authState.isLoading,
-                ),
-
-                const SizedBox(height: AppSpacing.xl),
-                const OrDivider(),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Full Name
-                TextFormField(
-                  controller: _nameController,
-                  textCapitalization: TextCapitalization.words,
-                  validator: (v) => Validators.required(v, 'Full name'),
-                  decoration: const InputDecoration(labelText: 'Full Name'),
-                ),
-                const SizedBox(height: AppSpacing.base),
-
-                // Email
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: Validators.email,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                ),
-                const SizedBox(height: AppSpacing.base),
-
-                // Password
-                PasswordField(
-                  controller: _passwordController,
-                  validator: Validators.password,
-                ),
-                const SizedBox(height: AppSpacing.base),
-
-                // Confirm Password
-                PasswordField(
-                  controller: _confirmPasswordController,
-                  label: 'Confirm Password',
-                  validator: (value) {
-                    if (value != _passwordController.text) return 'Passwords do not match';
-                    return Validators.password(value);
-                  },
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Register Button
-                PrimaryButton(
-                  text: 'Create Account',
-                  isLoading: authState.isLoading,
-                  onPressed: _handleRegister,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                // Login Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Already have an account? ', style: Theme.of(context).textTheme.bodyMedium),
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Text(
-                        'Sign In',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
+                  // Back button + title
+                  Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
                             ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back_rounded),
+                          onPressed: () => context.pop(),
+                        ),
                       ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Header
+                  Center(
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppColors.secondary, AppColors.secondaryLight],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.secondary.withValues(alpha: 0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 32),
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Create Account', style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Start your academic journey today',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Form Card
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Full Name
+                        TextFormField(
+                          controller: _nameController,
+                          textCapitalization: TextCapitalization.words,
+                          validator: (v) => Validators.required(v, 'Full name'),
+                          decoration: InputDecoration(
+                            labelText: 'Full Name',
+                            prefixIcon: Icon(Icons.person_outlined, size: 20, color: AppColors.textTertiaryLight),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Email
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: Validators.email,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.email_outlined, size: 20, color: AppColors.textTertiaryLight),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Password
+                        PasswordField(controller: _passwordController, validator: Validators.password),
+                        const SizedBox(height: 16),
+
+                        // Confirm Password
+                        PasswordField(
+                          controller: _confirmPasswordController,
+                          label: 'Confirm Password',
+                          validator: (value) {
+                            if (value != _passwordController.text) return 'Passwords do not match';
+                            return Validators.password(value);
+                          },
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Register Button
+                        PrimaryButton(
+                          text: 'Create Account',
+                          isLoading: authState.isLoading,
+                          onPressed: _handleRegister,
+                          icon: Icons.rocket_launch_rounded,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                  const OrDivider(),
+                  const SizedBox(height: 24),
+
+                  GoogleSignInButton(onPressed: _handleGoogleSignIn, isLoading: authState.isLoading),
+
+                  const SizedBox(height: 32),
+
+                  // Login Link
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Already have an account? ', style: Theme.of(context).textTheme.bodyMedium),
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: Text(
+                          'Sign In',
+                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: AppColors.primary,
+                                decoration: TextDecoration.underline,
+                                decorationColor: AppColors.primary,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
           ),
         ),

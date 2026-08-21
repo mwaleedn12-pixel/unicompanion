@@ -10,7 +10,9 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return client.auth.onAuthStateChange;
 });
 
+// THIS WAS THE BUG — now it watches authStateProvider so it rebuilds on login/logout
 final currentUserProvider = Provider<User?>((ref) {
+  ref.watch(authStateProvider); // <-- yeh line zaroori hai, iske bina rebuild nahi hota
   final client = ref.watch(supabaseClientProvider);
   return client.auth.currentUser;
 });
