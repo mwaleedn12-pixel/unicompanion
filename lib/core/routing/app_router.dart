@@ -15,6 +15,7 @@ import '../../features/explore/presentation/screens/university_detail_screen.dar
 import '../../features/tools/presentation/screens/tools_screen.dart';
 import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
 import '../../features/tools/presentation/screens/cgpa_calculator_screen.dart';
+import '../../features/tools/presentation/screens/attendance_calculator_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -51,8 +52,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               routes: [
                 GoRoute(path: 'gpa', name: 'gpa-calculator', builder: (context, state) => const GpaCalculatorScreen()),
                 GoRoute(path: 'cgpa', name: 'cgpa-calculator', builder: (context, state) => const CgpaCalculatorScreen()),
+                GoRoute(path: 'attendance', name: 'attendance-calculator', builder: (context, state) => const AttendanceCalculatorScreen()),
                 GoRoute(path: 'merit', name: 'merit-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Merit Calculator')),
-                GoRoute(path: 'attendance', name: 'attendance-calculator', builder: (context, state) => const _PlaceholderScreen(title: 'Attendance')),
                 GoRoute(path: 'target-gpa', name: 'target-gpa', builder: (context, state) => const _PlaceholderScreen(title: 'Target GPA')),
                 GoRoute(path: 'eligibility', name: 'eligibility-checker', builder: (context, state) => const _PlaceholderScreen(title: 'Eligibility')),
               ],
