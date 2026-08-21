@@ -1,10 +1,11 @@
 abstract final class RouteNames {
+  static const String splash = '/';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
   static const String onboarding = '/onboarding';
 
-  static const String home = '/';
+  static const String home = '/home';
   static const String explore = '/explore';
   static const String tools = '/tools';
   static const String track = '/track';

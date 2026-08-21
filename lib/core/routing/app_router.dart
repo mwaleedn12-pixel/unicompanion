@@ -2,45 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../services/supabase_service.dart';
-import '../services/local_storage_service.dart';
 import 'route_names.dart';
 import 'app_shell.dart';
+import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/explore/presentation/screens/explore_screen.dart';
+import '../../features/explore/presentation/screens/university_detail_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final user = ref.watch(currentUserProvider);
-
   return GoRouter(
-    initialLocation: RouteNames.home,
+    initialLocation: RouteNames.splash,
     debugLogDiagnostics: true,
-    redirect: (context, state) {
-      final isLoggedIn = user != null;
-      final isAuthRoute = state.matchedLocation == RouteNames.login ||
-          state.matchedLocation == RouteNames.register ||
-          state.matchedLocation == RouteNames.forgotPassword;
-      final isOnboarding = state.matchedLocation == RouteNames.onboarding;
-
-      if (!isLoggedIn && !isAuthRoute) return RouteNames.login;
-      if (isLoggedIn && isAuthRoute) {
-        final onboardingDone = LocalStorageService.isOnboardingComplete;
-        return onboardingDone ? RouteNames.home : RouteNames.onboarding;
-      }
-      if (isLoggedIn && !isOnboarding && !LocalStorageService.isOnboardingComplete) {
-        return RouteNames.onboarding;
-      }
-      return null;
-    },
     routes: [
+      // Splash — decides where to go
+      GoRoute(path: RouteNames.splash, name: 'splash', builder: (context, state) => const SplashScreen()),
+
+      // Auth
       GoRoute(path: RouteNames.login, name: 'login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: RouteNames.register, name: 'register', builder: (context, state) => const RegisterScreen()),
       GoRoute(path: RouteNames.forgotPassword, name: 'forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
+
+      // Onboarding
       GoRoute(path: RouteNames.onboarding, name: 'onboarding', builder: (context, state) => const OnboardingScreen()),
 
+      // Main App Shell
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
         branches: [
@@ -48,7 +37,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             GoRoute(path: RouteNames.home, name: 'home', builder: (context, state) => const HomeScreen()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: RouteNames.explore, name: 'explore', builder: (context, state) => const _PlaceholderScreen(title: 'Explore')),
+            GoRoute(
+              path: RouteNames.explore,
+              name: 'explore',
+              builder: (context, state) => const ExploreScreen(),
+              routes: [
+                GoRoute(
+                  path: 'university/:id',
+                  name: 'university-detail',
+                  builder: (context, state) => UniversityDetailScreen(universityId: state.pathParameters['id']!),
+                ),
+              ],
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(

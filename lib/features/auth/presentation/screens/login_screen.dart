@@ -50,7 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       next.when(
         initial: () {},
         loading: () {},
-        success: (_) {},
+        success: (_) => context.go(RouteNames.home),
         error: (msg) => context.showSnackBar(msg, isError: true),
       );
     });

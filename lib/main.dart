@@ -23,7 +23,33 @@ Future<void> main() async {
 
   await LocalStorageService.init();
 
+  // Sync onboarding status from Supabase BEFORE app starts
+  await _syncOnboardingFromSupabase();
+
   runApp(const ProviderScope(child: UniCompanionApp()));
+}
+
+/// If user is logged in but local storage is empty (e.g. web refresh),
+/// check Supabase for onboarding status
+Future<void> _syncOnboardingFromSupabase() async {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return;
+  if (LocalStorageService.isOnboardingComplete) return;
+
+  try {
+    final data = await Supabase.instance.client
+        .from('user_profiles')
+        .select('onboarding_completed, user_type')
+        .eq('id', user.id)
+        .maybeSingle();
+
+    if (data != null && data['onboarding_completed'] == true) {
+      await LocalStorageService.setOnboardingComplete(true);
+      if (data['user_type'] != null) {
+        await LocalStorageService.setUserType(data['user_type']);
+      }
+    }
+  } catch (_) {}
 }
 
 class UniCompanionApp extends ConsumerWidget {
