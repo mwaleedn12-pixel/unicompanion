@@ -9,6 +9,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../academics/presentation/providers/semester_provider.dart';
 import '../../../academics/presentation/providers/assignment_provider.dart';
 import '../../../academics/data/models/semester_model.dart';
+import '../widgets/degree_progress_card.dart'; // Module 26
 
 class TrackScreen extends ConsumerWidget {
   const TrackScreen({super.key});
@@ -106,7 +107,6 @@ class TrackScreen extends ConsumerWidget {
     final semestersState = ref.watch(semestersProvider);
     final semesters = semestersState.dataOrNull ?? [];
     final upcomingAssignments = ref.watch(upcomingAssignmentsProvider);
-    final totalCredits = ref.watch(totalCompletedCreditsProvider);
 
     final courseCount = semesters.fold<int>(0, (sum, s) => sum + s.courses.length);
     SemesterModel? currentSemester;
@@ -116,10 +116,6 @@ class TrackScreen extends ConsumerWidget {
         break;
       }
     }
-
-    // Degree assumed at 130 credits unless the student has already exceeded it.
-    const degreeTotalCredits = 130.0;
-    final progressPct = (totalCredits / degreeTotalCredits).clamp(0.0, 1.0);
 
     return [
       // Semester Overview
@@ -149,6 +145,36 @@ class TrackScreen extends ConsumerWidget {
                   _StatBubble(value: currentSemester != null ? currentSemester.computedGpa.toStringAsFixed(2) : '--', label: 'Current GPA'),
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+
+      const SizedBox(height: 12),
+
+      // Module 25 — link to the Academic Dashboard
+      GestureDetector(
+        onTap: () => context.push('/track/dashboard'),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36, height: 36,
+                decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                child: Icon(Icons.insights_rounded, color: AppColors.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text('Academic Dashboard', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+              ),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textTertiaryLight),
             ],
           ),
         ),
@@ -238,37 +264,8 @@ class TrackScreen extends ConsumerWidget {
       Text('Degree Progress', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 14),
 
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Credits Completed', style: Theme.of(context).textTheme.titleSmall),
-                Text('${totalCredits.toInt()} / ${degreeTotalCredits.toInt()}', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700, color: AppColors.primary)),
-              ],
-            ),
-            const SizedBox(height: 10),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: progressPct,
-                minHeight: 10,
-                backgroundColor: AppColors.primarySurface,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text('${(progressPct * 100).toStringAsFixed(0)}% Complete', style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ),
+      // Module 26 — replaces the old inline 130-credit bar
+      const DegreeProgressCard(),
 
       const SizedBox(height: 32),
     ];

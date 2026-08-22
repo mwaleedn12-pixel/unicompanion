@@ -13,6 +13,7 @@ abstract final class RouteNames {
 
   static const String semesterManager = 'semesters';
   static const String assignmentTracker = 'assignments';
+  static const String academicDashboard = 'dashboard';
 
   static const String gpaCalculator = 'gpa';
   static const String cgpaCalculator = 'cgpa';
