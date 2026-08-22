@@ -33,5 +33,6 @@ extension SupabaseTableExtensions on SupabaseClient {
   SupabaseQueryBuilder get userApplications => from('user_applications');
   SupabaseQueryBuilder get userSemesters => from('user_semesters');
   SupabaseQueryBuilder get userCourses => from('user_courses');
+  SupabaseQueryBuilder get userAssignments => from('user_assignments');
   SupabaseQueryBuilder get courseAssessments => from('course_assessments');
 }

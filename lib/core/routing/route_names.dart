@@ -11,6 +11,9 @@ abstract final class RouteNames {
   static const String track = '/track';
   static const String profile = '/profile';
 
+  static const String semesterManager = 'semesters';
+  static const String assignmentTracker = 'assignments';
+
   static const String gpaCalculator = 'gpa';
   static const String cgpaCalculator = 'cgpa';
   static const String targetGpa = 'target-gpa';
