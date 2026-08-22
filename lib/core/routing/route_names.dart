@@ -18,6 +18,7 @@ abstract final class RouteNames {
   static const String attendanceCalculator = 'attendance';
   static const String meritCalculator = 'merit';
   static const String eligibilityChecker = 'eligibility';
+  static const String compare = 'compare';
 
   static const String settings = 'settings';
 }

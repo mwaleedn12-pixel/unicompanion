@@ -12,6 +12,7 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/explore/presentation/screens/university_detail_screen.dart';
+import '../../features/explore/presentation/screens/compare_screen.dart';
 import '../../features/tools/presentation/screens/tools_screen.dart';
 import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
 import '../../features/tools/presentation/screens/cgpa_calculator_screen.dart';
@@ -19,6 +20,7 @@ import '../../features/tools/presentation/screens/attendance_calculator_screen.d
 import '../../features/tools/presentation/screens/target_gpa_screen.dart';
 import '../../features/tools/presentation/screens/merit_calculator_screen.dart';
 import '../../features/tools/presentation/screens/eligibility_checker_screen.dart';
+import '../../features/tools/presentation/screens/grade_calculator_screen.dart';
 import '../../features/track/presentation/screens/track_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 
@@ -61,6 +63,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 GoRoute(path: 'target-gpa', name: 'target-gpa', builder: (context, state) => const TargetGpaScreen()),
                 GoRoute(path: 'merit', name: 'merit-calculator', builder: (context, state) => const MeritCalculatorScreen()),
                 GoRoute(path: 'eligibility', name: 'eligibility-checker', builder: (context, state) => const EligibilityCheckerScreen()),
+                GoRoute(path: 'grade', name: 'grade-calculator', builder: (context, state) => const GradeCalculatorScreen()),
+                GoRoute(path: 'compare', name: 'compare', builder: (context, state) => const CompareScreen()),
               ],
             ),
           ]),

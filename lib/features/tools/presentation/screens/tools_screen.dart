@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/routing/route_names.dart';
 
 class ToolsScreen extends StatelessWidget {
@@ -23,7 +22,6 @@ class ToolsScreen extends StatelessWidget {
               Text('Academic calculators & utilities', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight)),
               const SizedBox(height: 24),
 
-              // GPA Section
               Text('Calculators', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
               const SizedBox(height: 12),
 
@@ -58,6 +56,14 @@ class ToolsScreen extends StatelessWidget {
                 gradient: [AppColors.accent, AppColors.accentLight],
                 onTap: () => context.go('${RouteNames.tools}/attendance'),
               ),
+              const SizedBox(height: 12),
+              _ToolCard(
+                icon: Icons.grade_rounded,
+                title: 'Grade Calculator',
+                subtitle: 'Know your grade before the final exam',
+                gradient: [const Color(0xFFEC4899), const Color(0xFFF472B6)],
+                onTap: () => context.go('${RouteNames.tools}/grade'),
+              ),
 
               const SizedBox(height: 24),
               Text('Admission Tools', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
@@ -77,6 +83,14 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Check if you meet requirements for a program',
                 gradient: [AppColors.success, const Color(0xFF86EFAC)],
                 onTap: () => context.go('${RouteNames.tools}/eligibility'),
+              ),
+              const SizedBox(height: 12),
+              _ToolCard(
+                icon: Icons.compare_arrows_rounded,
+                title: 'Compare Universities',
+                subtitle: 'Side-by-side university comparison',
+                gradient: [const Color(0xFF6366F1), const Color(0xFF818CF8)],
+                onTap: () => context.go('${RouteNames.tools}/compare'),
               ),
 
               const SizedBox(height: 32),

@@ -35,7 +35,6 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-// ═══════════════════════ FSC STUDENT HOME ═══════════════════════
 class _FscHomeView extends StatelessWidget {
   final UserProfile profile;
   const _FscHomeView({required this.profile});
@@ -50,7 +49,6 @@ class _FscHomeView extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            // Greeting
             Row(
               children: [
                 Expanded(
@@ -82,7 +80,6 @@ class _FscHomeView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Hero Banner
             InfoBanner(
               icon: Icons.search_rounded,
               title: 'Find Your Dream University',
@@ -94,7 +91,6 @@ class _FscHomeView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Stats Row
             if (profile.matricPercentage != null || profile.fscPercentage != null)
               Row(
                 children: [
@@ -126,7 +122,6 @@ class _FscHomeView extends StatelessWidget {
             if (profile.matricPercentage != null || profile.fscPercentage != null)
               const SizedBox(height: 24),
 
-            // Quick Actions
             Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
 
@@ -157,7 +152,7 @@ class _FscHomeView extends StatelessWidget {
                   title: 'Compare Unis',
                   subtitle: 'Side by side',
                   color: AppColors.accent,
-                  onTap: () => context.go(RouteNames.explore),
+                  onTap: () => context.go('${RouteNames.tools}/compare'),
                 ),
                 QuickActionCard(
                   icon: Icons.card_giftcard_rounded,
@@ -171,7 +166,6 @@ class _FscHomeView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Interests
             if (profile.careerInterests.isNotEmpty) ...[
               Text('Your Interests', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
@@ -195,7 +189,6 @@ class _FscHomeView extends StatelessWidget {
               const SizedBox(height: 24),
             ],
 
-            // Tips Section
             Text('Getting Started', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             DeadlineCard(
@@ -230,7 +223,6 @@ class _FscHomeView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════ UNIVERSITY STUDENT HOME ═══════════════════════
 class _UniHomeView extends StatelessWidget {
   final UserProfile profile;
   const _UniHomeView({required this.profile});
@@ -245,7 +237,6 @@ class _UniHomeView extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            // Greeting
             Row(
               children: [
                 Expanded(
@@ -282,7 +273,6 @@ class _UniHomeView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Academic Stats
             Row(
               children: [
                 Expanded(
@@ -335,7 +325,6 @@ class _UniHomeView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Quick Actions
             Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
 
@@ -380,7 +369,6 @@ class _UniHomeView extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Getting Started
             InfoBanner(
               icon: Icons.add_circle_outline_rounded,
               title: 'Add Your Courses',
@@ -392,7 +380,6 @@ class _UniHomeView extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // Tips
             Text('Tools & Resources', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
 
