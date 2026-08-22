@@ -30,6 +30,8 @@ import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/academics/presentation/screens/semester_manager_screen.dart';
 import '../../features/academics/presentation/screens/assignment_tracker_screen.dart';
 import '../../features/academics/presentation/screens/academic_dashboard_screen.dart';
+import '../../features/applications/presentation/screens/shortlist_screen.dart'; // Module 35
+import '../../features/applications/presentation/screens/application_tracker_screen.dart'; // Module 34
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -90,6 +92,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 GoRoute(path: RouteNames.semesterManager, name: 'semester-manager', builder: (context, state) => const SemesterManagerScreen()),
                 GoRoute(path: RouteNames.assignmentTracker, name: 'assignment-tracker', builder: (context, state) => const AssignmentTrackerScreen()),
                 GoRoute(path: RouteNames.academicDashboard, name: 'academic-dashboard', builder: (context, state) => const AcademicDashboardScreen()),
+                GoRoute(path: RouteNames.shortlist, name: 'shortlist', builder: (context, state) => const ShortlistScreen()),
+                GoRoute(path: RouteNames.applicationTracker, name: 'application-tracker', builder: (context, state) => const ApplicationTrackerScreen()),
               ],
             ),
           ]),

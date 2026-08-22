@@ -9,6 +9,8 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../academics/presentation/providers/semester_provider.dart';
 import '../../../academics/presentation/providers/assignment_provider.dart';
 import '../../../academics/data/models/semester_model.dart';
+import '../../../applications/presentation/providers/shortlist_provider.dart';
+import '../../../applications/presentation/providers/application_provider.dart';
 import '../widgets/degree_progress_card.dart'; // Module 26
 
 class TrackScreen extends ConsumerWidget {
@@ -35,7 +37,7 @@ class TrackScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              if (isFsc) ..._fscTrackContent(context),
+              if (isFsc) ..._fscTrackContent(context, ref),
               if (!isFsc) ..._uniTrackContent(context, ref),
             ],
           ),
@@ -44,34 +46,47 @@ class TrackScreen extends ConsumerWidget {
     );
   }
 
-  List<Widget> _fscTrackContent(BuildContext context) {
+  List<Widget> _fscTrackContent(BuildContext context, WidgetRef ref) {
+    final applicationsState = ref.watch(applicationsProvider);
+    final applications = applicationsState.dataOrNull ?? [];
+    final shortlistState = ref.watch(shortlistProvider);
+    final shortlist = shortlistState.dataOrNull ?? [];
+    final upcomingDeadlines = ref.watch(upcomingDeadlinesProvider);
+
+    final appliedCount = applications.where((a) => a.isApplied).length;
+    final shortlistedCount = shortlist.length;
+    final acceptedCount = applications.where((a) => a.isAccepted).length;
+
     return [
       // Application Stats
-      Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.checklist_rounded, color: Colors.white, size: 36),
-            const SizedBox(height: 10),
-            Text('Application Tracker', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 4),
-            Text('Track your university applications', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _StatBubble(value: '0', label: 'Applied'),
-                _StatBubble(value: '0', label: 'Shortlisted'),
-                _StatBubble(value: '0', label: 'Accepted'),
-              ],
-            ),
-          ],
+      GestureDetector(
+        onTap: () => context.push('/track/applications'),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [AppColors.primary, AppColors.primaryLight]),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
+          ),
+          child: Column(
+            children: [
+              const Icon(Icons.checklist_rounded, color: Colors.white, size: 36),
+              const SizedBox(height: 10),
+              Text('Application Tracker', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 4),
+              Text('Track your university applications', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 13)),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _StatBubble(value: '$appliedCount', label: 'Applied'),
+                  _StatBubble(value: '$shortlistedCount', label: 'Shortlisted'),
+                  _StatBubble(value: '$acceptedCount', label: 'Accepted'),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
 
@@ -80,24 +95,71 @@ class TrackScreen extends ConsumerWidget {
       Text('Upcoming Deadlines', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 14),
 
-      _EmptyStateCard(
-        icon: Icons.calendar_today_rounded,
-        title: 'No Deadlines Yet',
-        subtitle: 'Shortlist universities from Explore tab to see their deadlines here',
-        color: AppColors.accent,
-      ),
+      if (upcomingDeadlines.isEmpty)
+        _EmptyStateCard(
+          icon: Icons.calendar_today_rounded,
+          title: 'No Deadlines Yet',
+          subtitle: 'Shortlist universities from Explore tab to see their deadlines here',
+          color: AppColors.accent,
+        )
+      else
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+          ),
+          child: Column(
+            children: [
+              ...upcomingDeadlines.take(4).map((a) => ListTile(
+                    dense: true,
+                    leading: Icon(Icons.event_rounded, color: a.isDeadlineSoon ? AppColors.warning : AppColors.accent, size: 20),
+                    title: Text(a.universityName, style: Theme.of(context).textTheme.bodyMedium),
+                    trailing: Text(
+                      DateFormat('MMM d').format(a.deadline!),
+                      style: TextStyle(fontWeight: FontWeight.w600, color: a.isDeadlineSoon ? AppColors.warning : AppColors.textSecondaryLight, fontSize: 12),
+                    ),
+                  )),
+              TextButton(onPressed: () => context.push('/track/applications'), child: const Text('View All Applications')),
+            ],
+          ),
+        ),
 
       const SizedBox(height: 16),
 
       Text('My Shortlist', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 14),
 
-      _EmptyStateCard(
-        icon: Icons.bookmark_outline_rounded,
-        title: 'No Universities Shortlisted',
-        subtitle: 'Go to Explore and save universities you\'re interested in',
-        color: AppColors.primary,
-      ),
+      if (shortlist.isEmpty)
+        GestureDetector(
+          onTap: () => context.push('/track/shortlist'),
+          child: _EmptyStateCard(
+            icon: Icons.bookmark_outline_rounded,
+            title: 'No Universities Shortlisted',
+            subtitle: 'Go to Explore and save universities you\'re interested in',
+            color: AppColors.primary,
+            actionLabel: 'Add Now',
+          ),
+        )
+      else
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+          ),
+          child: Column(
+            children: [
+              ...shortlist.take(4).map((s) => ListTile(
+                    dense: true,
+                    leading: Icon(Icons.bookmark_rounded, color: s.universityType == 'public' ? AppColors.primary : AppColors.secondary, size: 20),
+                    title: Text(s.universityName, style: Theme.of(context).textTheme.bodyMedium),
+                    trailing: s.universityRanking != null ? Text('#${s.universityRanking}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.textSecondaryLight)) : null,
+                  )),
+              TextButton(onPressed: () => context.push('/track/shortlist'), child: const Text('View Full Shortlist')),
+            ],
+          ),
+        ),
 
       const SizedBox(height: 32),
     ];

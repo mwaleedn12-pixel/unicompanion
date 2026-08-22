@@ -50,7 +50,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       next.when(
         initial: () {},
         loading: () {},
-        success: (_) => context.go(RouteNames.home),
+        success: (_) {
+          final onboardingComplete = ref.read(authStateProvider.notifier).onboardingComplete;
+          context.go(onboardingComplete ? RouteNames.home : RouteNames.onboarding);
+        },
         error: (msg) => context.showSnackBar(msg, isError: true),
       );
     });

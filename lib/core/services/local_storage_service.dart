@@ -16,6 +16,7 @@ class LocalStorageService {
 
   static String? get userType => _prefs.getString(_keyUserType);
   static Future<void> setUserType(String type) => _prefs.setString(_keyUserType, type);
+  static Future<void> clearUserType() => _prefs.remove(_keyUserType);
 
   static int get themeMode => _prefs.getInt(_keyThemeMode) ?? 0;
   static Future<void> setThemeMode(int index) => _prefs.setInt(_keyThemeMode, index);

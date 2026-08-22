@@ -25,29 +25,37 @@ class AuthNotifier extends StateNotifier<UiState<UserEntity>> {
   final AuthRepository _repository;
   final dynamic _client;
 
+  /// Set right before `state` becomes success, so listeners (e.g. LoginScreen)
+  /// know whether to route to onboarding or home for the account that just logged in.
+  bool onboardingComplete = false;
+
   AuthNotifier(this._repository, this._client) : super(const UiState.initial());
 
-  /// After login/signup, check if onboarding is already done in Supabase
-  Future<void> _syncOnboardingStatus(String userId) async {
+  /// After login/signup, sync local cache with Supabase's actual onboarding
+  /// state for THIS user — always overwrites, never leaves a stale value
+  /// from a previously logged-in account. Returns true if onboarding is done.
+  Future<bool> _syncOnboardingStatus(String userId) async {
     try {
       final data = await _client
           .from('user_profiles')
-          .select('onboarding_completed')
+          .select('onboarding_completed, user_type')
           .eq('id', userId)
           .maybeSingle();
 
-      if (data != null && data['onboarding_completed'] == true) {
-        await LocalStorageService.setOnboardingComplete(true);
-        final userType = await _client
-            .from('user_profiles')
-            .select('user_type')
-            .eq('id', userId)
-            .maybeSingle();
-        if (userType != null && userType['user_type'] != null) {
-          await LocalStorageService.setUserType(userType['user_type']);
-        }
+      final isComplete = data != null && data['onboarding_completed'] == true;
+      await LocalStorageService.setOnboardingComplete(isComplete);
+
+      if (isComplete && data['user_type'] != null) {
+        await LocalStorageService.setUserType(data['user_type']);
+      } else {
+        // Clear any stale user_type left over from a different account.
+        await LocalStorageService.clearUserType();
       }
-    } catch (_) {}
+
+      return isComplete;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> signInWithEmail(String email, String password) async {
@@ -55,7 +63,7 @@ class AuthNotifier extends StateNotifier<UiState<UserEntity>> {
     final result = await _repository.signInWithEmail(email, password);
     await result.when(
       success: (user) async {
-        await _syncOnboardingStatus(user.id);
+        onboardingComplete = await _syncOnboardingStatus(user.id);
         state = UiState.success(user);
       },
       failure: (msg) async {
@@ -69,6 +77,9 @@ class AuthNotifier extends StateNotifier<UiState<UserEntity>> {
     final result = await _repository.signUpWithEmail(email, password, fullName);
     await result.when(
       success: (user) async {
+        onboardingComplete = false;
+        await LocalStorageService.setOnboardingComplete(false);
+        await LocalStorageService.clearUserType();
         state = UiState.success(user);
       },
       failure: (msg) async {
@@ -82,7 +93,7 @@ class AuthNotifier extends StateNotifier<UiState<UserEntity>> {
     final result = await _repository.signInWithGoogle();
     await result.when(
       success: (user) async {
-        await _syncOnboardingStatus(user.id);
+        onboardingComplete = await _syncOnboardingStatus(user.id);
         state = UiState.success(user);
       },
       failure: (msg) async {
@@ -103,6 +114,7 @@ class AuthNotifier extends StateNotifier<UiState<UserEntity>> {
   Future<void> signOut() async {
     await _repository.signOut();
     await LocalStorageService.clear();
+    onboardingComplete = false;
     state = const UiState.initial();
   }
 

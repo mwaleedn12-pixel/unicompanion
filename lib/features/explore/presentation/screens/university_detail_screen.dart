@@ -10,6 +10,7 @@ import '../../data/models/university_model.dart';
 import '../../data/models/program_model.dart';
 import '../../data/models/campus_model.dart';
 import '../providers/explore_provider.dart';
+import '../../../applications/presentation/providers/shortlist_provider.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -61,6 +62,37 @@ class _DetailBody extends ConsumerWidget {
               ),
             ),
           ),
+          actions: [
+            // Module 35 — shortlist bookmark toggle
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final isShortlisted = ref.watch(isShortlistedProvider(university.id));
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        isShortlisted ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                        color: isShortlisted ? AppColors.primary : AppColors.textPrimaryLight,
+                      ),
+                      onPressed: () async {
+                        final ok = await ref.read(shortlistProvider.notifier).toggle(university.id);
+                        if (context.mounted && ok) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(isShortlisted ? 'Removed from shortlist' : 'Added to shortlist')),
+                          );
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
               decoration: BoxDecoration(

@@ -29,12 +29,13 @@ Future<void> main() async {
   runApp(const ProviderScope(child: UniCompanionApp()));
 }
 
-/// If user is logged in but local storage is empty (e.g. web refresh),
-/// check Supabase for onboarding status
+/// Always re-syncs local cache from Supabase for the currently authenticated
+/// user on every cold start / page reload. This intentionally does NOT trust
+/// the local cache first — a browser reload can be a different account than
+/// whichever one last wrote to local storage (e.g. testing multiple accounts).
 Future<void> _syncOnboardingFromSupabase() async {
   final user = Supabase.instance.client.auth.currentUser;
   if (user == null) return;
-  if (LocalStorageService.isOnboardingComplete) return;
 
   try {
     final data = await Supabase.instance.client
@@ -43,11 +44,13 @@ Future<void> _syncOnboardingFromSupabase() async {
         .eq('id', user.id)
         .maybeSingle();
 
-    if (data != null && data['onboarding_completed'] == true) {
-      await LocalStorageService.setOnboardingComplete(true);
-      if (data['user_type'] != null) {
-        await LocalStorageService.setUserType(data['user_type']);
-      }
+    final isComplete = data != null && data['onboarding_completed'] == true;
+    await LocalStorageService.setOnboardingComplete(isComplete);
+
+    if (isComplete && data['user_type'] != null) {
+      await LocalStorageService.setUserType(data['user_type']);
+    } else {
+      await LocalStorageService.clearUserType();
     }
   } catch (_) {}
 }

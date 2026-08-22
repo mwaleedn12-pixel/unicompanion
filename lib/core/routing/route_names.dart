@@ -29,4 +29,8 @@ abstract final class RouteNames {
   // Module 27-29
   static const String programsExplorer = 'programs';
   static const String campusProfiles = 'campuses';
+
+  // Module 34-35
+  static const String shortlist = 'shortlist';
+  static const String applicationTracker = 'applications';
 }
