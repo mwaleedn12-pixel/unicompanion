@@ -13,6 +13,8 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/explore/presentation/screens/explore_screen.dart';
 import '../../features/explore/presentation/screens/university_detail_screen.dart';
 import '../../features/explore/presentation/screens/compare_screen.dart';
+import '../../features/explore/presentation/screens/scholarship_screen.dart';
+import '../../features/explore/presentation/screens/career_quiz_screen.dart';
 import '../../features/tools/presentation/screens/tools_screen.dart';
 import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
 import '../../features/tools/presentation/screens/cgpa_calculator_screen.dart';
@@ -34,6 +36,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: RouteNames.register, name: 'register', builder: (context, state) => const RegisterScreen()),
       GoRoute(path: RouteNames.forgotPassword, name: 'forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
       GoRoute(path: RouteNames.onboarding, name: 'onboarding', builder: (context, state) => const OnboardingScreen()),
+
+      // Standalone routes (outside shell)
+      GoRoute(path: '/scholarships', name: 'scholarships', builder: (context, state) => const ScholarshipScreen()),
+      GoRoute(path: '/career-quiz', name: 'career-quiz', builder: (context, state) => const CareerQuizScreen()),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
