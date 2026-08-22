@@ -97,7 +97,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       borderRadius: BorderRadius.circular(12),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: () => context.push('/scholarships'),
+                        onTap: () => context.go('/scholarships'),
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -123,7 +123,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       borderRadius: BorderRadius.circular(12),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(12),
-                        onTap: () => context.push('/career-quiz'),
+                        onTap: () => context.go('/career-quiz'),
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -136,6 +136,68 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                               Icon(Icons.psychology_rounded, size: 18, color: AppColors.primary),
                               const SizedBox(width: 6),
                               Text('Career Quiz', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Row 2: Programs + Campuses
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Material(
+                      color: AppColors.accentSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => context.go('/programs'),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.menu_book_rounded, size: 18, color: AppColors.accentDark),
+                              const SizedBox(width: 6),
+                              Text('Programs', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.accentDark)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Material(
+                      color: AppColors.secondarySurface,
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => context.go('/campuses'),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.location_city_rounded, size: 18, color: AppColors.secondaryDark),
+                              const SizedBox(width: 6),
+                              Text('Campuses', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondaryDark)),
                             ],
                           ),
                         ),

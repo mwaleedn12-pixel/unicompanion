@@ -7,6 +7,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/common_widgets.dart';
 import '../../data/models/university_model.dart';
+import '../../data/models/program_model.dart';
+import '../../data/models/campus_model.dart';
 import '../providers/explore_provider.dart';
 
 class UniversityDetailScreen extends ConsumerWidget {
@@ -31,15 +33,18 @@ class UniversityDetailScreen extends ConsumerWidget {
   }
 }
 
-class _DetailBody extends StatelessWidget {
+class _DetailBody extends ConsumerWidget {
   final UniversityModel university;
   const _DetailBody({required this.university});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final programsAsync = ref.watch(universityProgramsProvider(university.id));
+    final campusesAsync = ref.watch(universityCampusesProvider(university.id));
+
     return CustomScrollView(
       slivers: [
-        // Hero Header
+        // ── Hero Header ──
         SliverAppBar(
           expandedHeight: 220,
           pinned: true,
@@ -104,7 +109,7 @@ class _DetailBody extends StatelessWidget {
           ),
         ),
 
-        // Content
+        // ── Content ──
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -149,6 +154,73 @@ class _DetailBody extends StatelessWidget {
                   const SizedBox(height: 24),
                 ],
 
+                // ═══════════════════════════════════════
+                // Module 28: Programs Offered (REAL DATA)
+                // ═══════════════════════════════════════
+                Text('Programs Offered', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+
+                programsAsync.when(
+                  loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(strokeWidth: 2))),
+                  error: (e, _) => _PlaceholderBox(text: 'Could not load programs'),
+                  data: (programs) {
+                    if (programs.isEmpty) {
+                      return _PlaceholderBox(text: 'No programs listed yet');
+                    }
+
+                    // Group by degree level
+                    final grouped = <String, List<ProgramModel>>{};
+                    for (final p in programs) {
+                      grouped.putIfAbsent(p.degreeLevel, () => []).add(p);
+                    }
+
+                    return Column(
+                      children: grouped.entries.map((entry) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                _levelHeader(entry.key),
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            ...entry.value.map((p) => _ProgramTile(program: p)),
+                            const SizedBox(height: 8),
+                          ],
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // ═══════════════════════════════════════
+                // Module 29: Campuses (REAL DATA)
+                // ═══════════════════════════════════════
+                Text('Campuses', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 10),
+
+                campusesAsync.when(
+                  loading: () => const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(strokeWidth: 2))),
+                  error: (e, _) => _PlaceholderBox(text: 'Could not load campuses'),
+                  data: (campuses) {
+                    if (campuses.isEmpty) {
+                      return _PlaceholderBox(text: 'No campus info yet');
+                    }
+                    return Column(
+                      children: campuses.map((c) => _CampusTile(campus: c)).toList(),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
                 // Website Button
                 if (university.website != null)
                   SizedBox(
@@ -169,17 +241,6 @@ class _DetailBody extends StatelessWidget {
                     ),
                   ),
 
-                const SizedBox(height: 16),
-
-                // Placeholder sections
-                _ComingSoonSection(title: 'Programs Offered', icon: Icons.menu_book_rounded),
-                const SizedBox(height: 12),
-                _ComingSoonSection(title: 'Fee Structure', icon: Icons.payments_rounded),
-                const SizedBox(height: 12),
-                _ComingSoonSection(title: 'Admission Dates', icon: Icons.calendar_month_rounded),
-                const SizedBox(height: 12),
-                _ComingSoonSection(title: 'Scholarships', icon: Icons.card_giftcard_rounded),
-
                 const SizedBox(height: 32),
               ],
             ),
@@ -188,7 +249,263 @@ class _DetailBody extends StatelessWidget {
       ],
     );
   }
+
+  String _levelHeader(String level) {
+    switch (level) {
+      case 'bachelors': return '🎓 Bachelors Programs';
+      case 'masters': return '📚 Masters Programs';
+      case 'phd': return '🔬 PhD Programs';
+      case 'diploma': return '📋 Diploma Programs';
+      default: return level;
+    }
+  }
 }
+
+// ── Inline Program Tile (on university detail) ──
+
+class _ProgramTile extends StatefulWidget {
+  final ProgramModel program;
+  const _ProgramTile({required this.program});
+
+  @override
+  State<_ProgramTile> createState() => _ProgramTileState();
+}
+
+class _ProgramTileState extends State<_ProgramTile> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.program;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.dividerLight.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        children: [
+          // Collapsed row
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.primarySurface,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 18),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(p.name, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                        Text(p.feeDisplay, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.success)),
+                      ],
+                    ),
+                  ),
+                  Icon(_expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: AppColors.textTertiaryLight),
+                ],
+              ),
+            ),
+          ),
+
+          // Expanded details
+          if (_expanded)
+            Container(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+              child: Column(
+                children: [
+                  const Divider(height: 1),
+                  const SizedBox(height: 10),
+                  _DetailRow(label: 'Duration', value: p.durationDisplay),
+                  if (p.creditHours != null) _DetailRow(label: 'Credit Hours', value: '${p.creditHours}'),
+                  if (p.totalSemesters != null) _DetailRow(label: 'Semesters', value: '${p.totalSemesters}'),
+                  _DetailRow(label: 'Fee/Semester', value: p.feeDisplay),
+                  _DetailRow(label: 'Total Fee (est.)', value: p.feeTotalDisplay),
+                  if (p.seats != null) _DetailRow(label: 'Seats', value: '${p.seats}'),
+                  if (p.admissionOpenDate != null)
+                    _DetailRow(label: 'Admission', value: p.admissionWindow),
+                  if (p.eligibility != null) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.infoSurface,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, size: 14, color: AppColors.info),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              p.eligibility!,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.info, height: 1.4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const _DetailRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiaryLight)),
+          Flexible(
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Inline Campus Tile (on university detail) ──
+
+class _CampusTile extends StatelessWidget {
+  final CampusModel campus;
+  const _CampusTile({required this.campus});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.dividerLight.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: campus.isMainCampus ? AppColors.primarySurface : AppColors.secondarySurface,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  campus.isMainCampus ? Icons.account_balance_rounded : Icons.location_city_rounded,
+                  color: campus.isMainCampus ? AppColors.primary : AppColors.secondary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(campus.name, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on_rounded, size: 12, color: AppColors.textTertiaryLight),
+                        const SizedBox(width: 3),
+                        Text(campus.city, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryLight)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (campus.isMainCampus)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text('Main', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                ),
+            ],
+          ),
+
+          if (campus.description != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              campus.description!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4, color: AppColors.textSecondaryLight),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+
+          const SizedBox(height: 8),
+
+          // Facilities as small chips
+          Wrap(
+            spacing: 4,
+            runSpacing: 4,
+            children: campus.facilities.map((f) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.successSurface,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                '${f.emoji} ${f.label}',
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.success),
+              ),
+            )).toList(),
+          ),
+
+          if (campus.studentCount != null || campus.establishedYear != null) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                if (campus.studentCount != null)
+                  Text('${campus.studentCountDisplay}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiaryLight, fontSize: 11)),
+                if (campus.studentCount != null && campus.establishedYear != null)
+                  const Text(' · ', style: TextStyle(color: AppColors.textTertiaryLight)),
+                if (campus.establishedYear != null)
+                  Text('Est. ${campus.establishedYear}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiaryLight, fontSize: 11)),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ── Shared Widgets ──
 
 class _InfoChip extends StatelessWidget {
   final IconData icon;
@@ -217,42 +534,22 @@ class _InfoChip extends StatelessWidget {
   }
 }
 
-class _ComingSoonSection extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  const _ComingSoonSection({required this.title, required this.icon});
+class _PlaceholderBox extends StatelessWidget {
+  final String text;
+  const _PlaceholderBox({required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.15)),
+        border: Border.all(color: AppColors.dividerLight),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColors.primarySurface,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(title, style: Theme.of(context).textTheme.titleSmall)),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppColors.accentSurface,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: const Text('Coming Soon', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.accentDark)),
-          ),
-        ],
+      child: Center(
+        child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textTertiaryLight)),
       ),
     );
   }

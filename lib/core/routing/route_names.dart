@@ -25,4 +25,8 @@ abstract final class RouteNames {
   static const String compare = 'compare';
 
   static const String settings = 'settings';
+
+  // Module 27-29
+  static const String programsExplorer = 'programs';
+  static const String campusProfiles = 'campuses';
 }

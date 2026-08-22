@@ -15,6 +15,8 @@ import '../../features/explore/presentation/screens/university_detail_screen.dar
 import '../../features/explore/presentation/screens/compare_screen.dart';
 import '../../features/explore/presentation/screens/scholarship_screen.dart';
 import '../../features/explore/presentation/screens/career_quiz_screen.dart';
+import '../../features/explore/presentation/screens/programs_explorer_screen.dart'; // Module 27
+import '../../features/explore/presentation/screens/campus_screen.dart'; // Module 29
 import '../../features/tools/presentation/screens/tools_screen.dart';
 import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
 import '../../features/tools/presentation/screens/cgpa_calculator_screen.dart';
@@ -27,7 +29,7 @@ import '../../features/track/presentation/screens/track_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/academics/presentation/screens/semester_manager_screen.dart';
 import '../../features/academics/presentation/screens/assignment_tracker_screen.dart';
-import '../../features/academics/presentation/screens/academic_dashboard_screen.dart'; // Module 25
+import '../../features/academics/presentation/screens/academic_dashboard_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -43,6 +45,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Standalone routes (outside shell)
       GoRoute(path: '/scholarships', name: 'scholarships', builder: (context, state) => const ScholarshipScreen()),
       GoRoute(path: '/career-quiz', name: 'career-quiz', builder: (context, state) => const CareerQuizScreen()),
+      GoRoute(path: '/programs', name: 'programs-explorer', builder: (context, state) => const ProgramsExplorerScreen()),
+      GoRoute(path: '/campuses', name: 'campus-profiles', builder: (context, state) => const CampusScreen()),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
@@ -85,7 +89,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               routes: [
                 GoRoute(path: RouteNames.semesterManager, name: 'semester-manager', builder: (context, state) => const SemesterManagerScreen()),
                 GoRoute(path: RouteNames.assignmentTracker, name: 'assignment-tracker', builder: (context, state) => const AssignmentTrackerScreen()),
-                GoRoute(path: RouteNames.academicDashboard, name: 'academic-dashboard', builder: (context, state) => const AcademicDashboardScreen()), // Module 25
+                GoRoute(path: RouteNames.academicDashboard, name: 'academic-dashboard', builder: (context, state) => const AcademicDashboardScreen()),
               ],
             ),
           ]),
