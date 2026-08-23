@@ -34,9 +34,10 @@ import '../../features/applications/presentation/screens/shortlist_screen.dart';
 import '../../features/applications/presentation/screens/application_tracker_screen.dart';
 import '../../features/test_prep/presentation/screens/test_prep_screen.dart';
 import '../../features/tools/presentation/screens/university_match_screen.dart';
-import '../../features/ai_assistant/presentation/screens/ai_assistant_screen.dart'; // Module 35
-import '../../features/jobs/presentation/screens/jobs_screen.dart'; // Module 37
-import '../../features/community/presentation/screens/discussions_screen.dart'; // Module 38
+import '../../features/ai_assistant/presentation/screens/ai_assistant_screen.dart';
+import '../../features/jobs/presentation/screens/jobs_screen.dart';
+import '../../features/community/presentation/screens/discussions_screen.dart';
+import '../../features/parent/presentation/screens/parent_mode_screen.dart'; // Module 39
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -49,7 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: RouteNames.forgotPassword, name: 'forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
       GoRoute(path: RouteNames.onboarding, name: 'onboarding', builder: (context, state) => const OnboardingScreen()),
 
-      // Standalone routes (outside shell)
+      // Standalone routes
       GoRoute(path: '/scholarships', name: 'scholarships', builder: (context, state) => const ScholarshipScreen()),
       GoRoute(path: '/career-quiz', name: 'career-quiz', builder: (context, state) => const CareerQuizScreen()),
       GoRoute(path: '/programs', name: 'programs-explorer', builder: (context, state) => const ProgramsExplorerScreen()),
@@ -57,6 +58,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: RouteNames.aiAssistant, name: 'ai-assistant', builder: (context, state) => const AiAssistantScreen()),
       GoRoute(path: RouteNames.jobs, name: 'jobs', builder: (context, state) => const JobsScreen()),
       GoRoute(path: RouteNames.community, name: 'community', builder: (context, state) => const DiscussionsScreen()),
+      GoRoute(path: RouteNames.parentMode, name: 'parent-mode', builder: (context, state) => const ParentModeScreen()),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),

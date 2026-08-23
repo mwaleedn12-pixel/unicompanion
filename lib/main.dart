@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/constants/app_constants.dart';
@@ -8,6 +9,9 @@ import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/local_storage_service.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/cache_service.dart';
+import 'core/providers/locale_provider.dart';
+import 'core/l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +27,7 @@ Future<void> main() async {
   );
 
   await LocalStorageService.init();
-
+  await CacheService.init();
   await NotificationService.instance.init();
 
   await _syncOnboardingFromSupabase();
@@ -60,6 +64,7 @@ class UniCompanionApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: 'UniCompanion',
@@ -68,6 +73,9 @@ class UniCompanionApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       routerConfig: router,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
     );
   }
 }

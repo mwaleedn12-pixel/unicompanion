@@ -8,6 +8,7 @@ import '../../../../core/services/local_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/common_widgets.dart';
+import '../../../../core/providers/locale_provider.dart'; // Module 40
 import '../../../home/presentation/providers/home_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -146,6 +147,44 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
+
+                // ── Module 40: Language Toggle ──
+                _SettingsTile(
+                  icon: Icons.language_rounded,
+                  title: 'Language / زبان',
+                  color: const Color(0xFF0891B2),
+                  trailing: Consumer(
+                    builder: (context, ref, _) {
+                      final locale = ref.watch(localeProvider);
+                      return GestureDetector(
+                        onTap: () => ref.read(localeProvider.notifier).toggleLocale(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primarySurface,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            locale.languageCode == 'en' ? 'English' : 'اردو',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // ── Module 39: Parent Mode ──
+                _SettingsTile(
+                  icon: Icons.family_restroom_rounded,
+                  title: 'Parent Mode',
+                  color: const Color(0xFF8B5CF6),
+                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
+                  onTap: () => context.go(RouteNames.parentMode),
+                ),
+                const SizedBox(height: 8),
+
                 _SettingsTile(
                   icon: Icons.edit_rounded,
                   title: 'Edit Profile',

@@ -26,22 +26,17 @@ abstract final class RouteNames {
 
   static const String settings = 'settings';
 
-  // Module 27-29
   static const String programsExplorer = 'programs';
   static const String campusProfiles = 'campuses';
 
-  // Module 31-32
   static const String shortlist = 'shortlist';
   static const String applicationTracker = 'applications';
 
-  // Module 33
   static const String testPrep = 'test-prep';
-
-  // Module 34
   static const String universityMatch = 'match';
 
-  // Module 35-38
   static const String aiAssistant = '/ai-assistant';
   static const String jobs = '/jobs';
   static const String community = '/community';
+  static const String parentMode = '/parent-mode'; // Module 39
 }

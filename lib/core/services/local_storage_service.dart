@@ -11,6 +11,8 @@ class LocalStorageService {
   static const _keyUserType = 'user_type';
   static const _keyThemeMode = 'theme_mode';
   static const _keyRemindersEnabled = 'reminders_enabled';
+  static const _keyLocale = 'locale'; // Module 40
+  static const _keyLastCacheTime = 'last_cache_time'; // Module 42
 
   static bool get isOnboardingComplete => _prefs.getBool(_keyOnboardingComplete) ?? false;
   static Future<void> setOnboardingComplete(bool value) => _prefs.setBool(_keyOnboardingComplete, value);
@@ -24,6 +26,24 @@ class LocalStorageService {
 
   static bool get remindersEnabled => _prefs.getBool(_keyRemindersEnabled) ?? true;
   static Future<void> setRemindersEnabled(bool value) => _prefs.setBool(_keyRemindersEnabled, value);
+
+  // Module 40: Locale
+  static String? get locale => _prefs.getString(_keyLocale);
+  static Future<void> setLocale(String code) => _prefs.setString(_keyLocale, code);
+
+  // Module 42: Cache timestamps
+  static DateTime? getLastCacheTime(String key) {
+    final ms = _prefs.getInt('${_keyLastCacheTime}_$key');
+    return ms != null ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
+  }
+
+  static Future<void> setLastCacheTime(String key) => _prefs.setInt('${_keyLastCacheTime}_$key', DateTime.now().millisecondsSinceEpoch);
+
+  static bool isCacheStale(String key, {Duration maxAge = const Duration(hours: 6)}) {
+    final last = getLastCacheTime(key);
+    if (last == null) return true;
+    return DateTime.now().difference(last) > maxAge;
+  }
 
   static Future<void> clear() => _prefs.clear();
 }
