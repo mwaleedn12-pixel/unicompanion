@@ -32,8 +32,11 @@ import '../../features/academics/presentation/screens/assignment_tracker_screen.
 import '../../features/academics/presentation/screens/academic_dashboard_screen.dart';
 import '../../features/applications/presentation/screens/shortlist_screen.dart';
 import '../../features/applications/presentation/screens/application_tracker_screen.dart';
-import '../../features/test_prep/presentation/screens/test_prep_screen.dart'; // Module 32
-import '../../features/tools/presentation/screens/university_match_screen.dart'; // Module 36
+import '../../features/test_prep/presentation/screens/test_prep_screen.dart';
+import '../../features/tools/presentation/screens/university_match_screen.dart';
+import '../../features/ai_assistant/presentation/screens/ai_assistant_screen.dart'; // Module 35
+import '../../features/jobs/presentation/screens/jobs_screen.dart'; // Module 37
+import '../../features/community/presentation/screens/discussions_screen.dart'; // Module 38
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -51,6 +54,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/career-quiz', name: 'career-quiz', builder: (context, state) => const CareerQuizScreen()),
       GoRoute(path: '/programs', name: 'programs-explorer', builder: (context, state) => const ProgramsExplorerScreen()),
       GoRoute(path: '/campuses', name: 'campus-profiles', builder: (context, state) => const CampusScreen()),
+      GoRoute(path: RouteNames.aiAssistant, name: 'ai-assistant', builder: (context, state) => const AiAssistantScreen()),
+      GoRoute(path: RouteNames.jobs, name: 'jobs', builder: (context, state) => const JobsScreen()),
+      GoRoute(path: RouteNames.community, name: 'community', builder: (context, state) => const DiscussionsScreen()),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
@@ -82,8 +88,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 GoRoute(path: 'eligibility', name: 'eligibility-checker', builder: (context, state) => const EligibilityCheckerScreen()),
                 GoRoute(path: 'grade', name: 'grade-calculator', builder: (context, state) => const GradeCalculatorScreen()),
                 GoRoute(path: 'compare', name: 'compare', builder: (context, state) => const CompareScreen()),
-                GoRoute(path: 'test-prep', name: 'test-prep', builder: (context, state) => const TestPrepScreen()), // Module 32
-                GoRoute(path: 'match', name: 'university-match', builder: (context, state) => const UniversityMatchScreen()), // Module 36
+                GoRoute(path: 'test-prep', name: 'test-prep', builder: (context, state) => const TestPrepScreen()),
+                GoRoute(path: 'match', name: 'university-match', builder: (context, state) => const UniversityMatchScreen()),
               ],
             ),
           ]),

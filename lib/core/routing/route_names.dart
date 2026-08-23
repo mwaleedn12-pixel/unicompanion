@@ -30,13 +30,18 @@ abstract final class RouteNames {
   static const String programsExplorer = 'programs';
   static const String campusProfiles = 'campuses';
 
-  // Module 34-35
+  // Module 31-32
   static const String shortlist = 'shortlist';
   static const String applicationTracker = 'applications';
 
-  // Module 32
+  // Module 33
   static const String testPrep = 'test-prep';
 
-  // Module 36
+  // Module 34
   static const String universityMatch = 'match';
+
+  // Module 35-38
+  static const String aiAssistant = '/ai-assistant';
+  static const String jobs = '/jobs';
+  static const String community = '/community';
 }

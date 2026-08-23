@@ -87,61 +87,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
             const SizedBox(height: 12),
 
+            // Row 1: Scholarships + Career Quiz
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Material(
-                      color: AppColors.successSurface,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () => context.go('/scholarships'),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.success.withValues(alpha: 0.2)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.card_giftcard_rounded, size: 18, color: AppColors.success),
-                              const SizedBox(width: 6),
-                              Text('Scholarships', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.success)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _QuickButton(icon: Icons.card_giftcard_rounded, label: 'Scholarships', color: AppColors.success, onTap: () => context.go('/scholarships'))),
                   const SizedBox(width: 10),
-                  Expanded(
-                    child: Material(
-                      color: AppColors.primarySurface,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () => context.go('/career-quiz'),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.psychology_rounded, size: 18, color: AppColors.primary),
-                              const SizedBox(width: 6),
-                              Text('Career Quiz', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _QuickButton(icon: Icons.psychology_rounded, label: 'Career Quiz', color: AppColors.primary, onTap: () => context.go('/career-quiz'))),
                 ],
               ),
             ),
@@ -153,57 +106,25 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Material(
-                      color: AppColors.accentSurface,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () => context.go('/programs'),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.menu_book_rounded, size: 18, color: AppColors.accentDark),
-                              const SizedBox(width: 6),
-                              Text('Programs', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.accentDark)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _QuickButton(icon: Icons.menu_book_rounded, label: 'Programs', color: AppColors.accentDark, bgColor: AppColors.accentSurface, onTap: () => context.go('/programs'))),
                   const SizedBox(width: 10),
-                  Expanded(
-                    child: Material(
-                      color: AppColors.secondarySurface,
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () => context.go('/campuses'),
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppColors.secondary.withValues(alpha: 0.2)),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.location_city_rounded, size: 18, color: AppColors.secondaryDark),
-                              const SizedBox(width: 6),
-                              Text('Campuses', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.secondaryDark)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  Expanded(child: _QuickButton(icon: Icons.location_city_rounded, label: 'Campuses', color: AppColors.secondaryDark, bgColor: AppColors.secondarySurface, onTap: () => context.go('/campuses'))),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Row 3: AI Assistant + Jobs + Community
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(child: _QuickButton(icon: Icons.smart_toy_rounded, label: 'AI Help', color: const Color(0xFF8B5CF6), bgColor: const Color(0xFFF3E8FF), onTap: () => context.go(RouteNames.aiAssistant))),
+                  const SizedBox(width: 8),
+                  Expanded(child: _QuickButton(icon: Icons.work_rounded, label: 'Jobs', color: const Color(0xFF0891B2), bgColor: const Color(0xFFE0F7FA), onTap: () => context.go(RouteNames.jobs))),
+                  const SizedBox(width: 8),
+                  Expanded(child: _QuickButton(icon: Icons.forum_rounded, label: 'Community', color: const Color(0xFFEA580C), bgColor: const Color(0xFFFFF3E0), onTap: () => context.go(RouteNames.community))),
                 ],
               ),
             ),
@@ -268,6 +189,45 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Compact quick-action button for explore grid
+class _QuickButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final Color? bgColor;
+  final VoidCallback onTap;
+
+  const _QuickButton({required this.icon, required this.label, required this.color, this.bgColor, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = bgColor ?? color.withValues(alpha: 0.08);
+    return Material(
+      color: bg,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 6),
+              Flexible(child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color), overflow: TextOverflow.ellipsis)),
+            ],
+          ),
         ),
       ),
     );
