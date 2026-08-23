@@ -1,41 +1,26 @@
-// lib/features/track/presentation/widgets/degree_progress_card.dart
-//
-// Module 26 — Degree Progress Tracker (upgrade of the basic 130-credit bar
-// that was inline in track_screen.dart).
-//
-// Uses totalCompletedCreditsProvider + semestersProvider
-// (features/academics/presentation/providers/semester_provider.dart).
-//
-// Config: user sets "Total credits required" and "Total semesters in your
-// program" directly — semesters left is just (total semesters - completed
-// semesters count), which is simpler and more predictable than estimating
-// off an average credit load.
-//
-// NOTE on persistence: both config values live in StateProviders below, so
-// they reset on app restart. Wire them to LocalStorageService if you want
-// them to persist per-user.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../academics/presentation/providers/semester_provider.dart';
+import '../../../home/presentation/providers/home_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 
 const int kDefaultTotalCredits = 130;
 const int kDefaultTotalSemesters = 8;
-const int kSemesterLengthMonths = 5; // ADAPT to your institution's calendar
-
-final totalCreditsRequiredProvider = StateProvider<int>((ref) => kDefaultTotalCredits);
-final totalSemestersProvider = StateProvider<int>((ref) => kDefaultTotalSemesters);
+const int kSemesterLengthMonths = 5;
 
 class DegreeProgressCard extends ConsumerWidget {
   const DegreeProgressCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profileState = ref.watch(userProfileProvider);
+    final profile = profileState.dataOrNull;
+
     final creditsEarned = ref.watch(totalCompletedCreditsProvider);
-    final totalRequired = ref.watch(totalCreditsRequiredProvider);
-    final totalSemesters = ref.watch(totalSemestersProvider);
+    final totalRequired = profile?.totalCreditsRequired ?? kDefaultTotalCredits;
+    final totalSemesters = profile?.totalSemestersRequired ?? kDefaultTotalSemesters;
 
     final semestersState = ref.watch(semestersProvider);
     final completedSemesterCount = (semestersState.dataOrNull ?? const []).where((s) => s.isCompleted).length;
@@ -140,12 +125,26 @@ class DegreeProgressCard extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {
+                onPressed: () async {
                   final totalCredits = int.tryParse(creditsController.text) ?? kDefaultTotalCredits;
                   final totalSemesters = int.tryParse(semestersController.text) ?? kDefaultTotalSemesters;
-                  ref.read(totalCreditsRequiredProvider.notifier).state = totalCredits;
-                  ref.read(totalSemestersProvider.notifier).state = totalSemesters;
-                  Navigator.pop(ctx);
+
+                  final navigator = Navigator.of(ctx);
+                  final messenger = ScaffoldMessenger.of(context);
+
+                  final ok = await ref.read(profileActionProvider.notifier).updateProfile({
+                    'total_credits_required': totalCredits,
+                    'total_semesters_required': totalSemesters,
+                  });
+
+                  if (ok) {
+                    await ref.read(userProfileProvider.notifier).loadProfile();
+                  }
+
+                  navigator.pop();
+                  if (!ok) {
+                    messenger.showSnackBar(const SnackBar(content: Text('Failed to save — please try again.')));
+                  }
                 },
                 child: const Text('Save'),
               ),

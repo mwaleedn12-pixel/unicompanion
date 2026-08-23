@@ -1,10 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/supabase_service.dart';
 import '../../../../core/utils/ui_state.dart';
 import '../../data/models/application_model.dart';
 import '../../domain/repositories/applications_repository.dart';
 import 'shortlist_provider.dart';
+
+extension _ApplicationDueItem on ApplicationModel {
+  DueItem toDueItem() => DueItem(
+        id: id,
+        title: 'Application deadline: $universityName',
+        subtitle: programName ?? 'Admission deadline',
+        dueDate: deadline!,
+      );
+}
 
 final applicationsProvider = StateNotifierProvider<ApplicationsNotifier, UiState<List<ApplicationModel>>>((ref) {
   final repository = ref.watch(applicationsRepositoryProvider);
@@ -14,7 +24,6 @@ final applicationsProvider = StateNotifierProvider<ApplicationsNotifier, UiState
   return notifier;
 });
 
-/// Applications with a deadline within the next 30 days, feeds the Track screen.
 final upcomingDeadlinesProvider = Provider<List<ApplicationModel>>((ref) {
   final all = ref.watch(applicationsProvider).dataOrNull ?? [];
   final upcoming = all.where((a) => a.deadline != null && !a.isDeadlinePassed && !a.isRejected).toList()
@@ -33,9 +42,17 @@ class ApplicationsNotifier extends StateNotifier<UiState<List<ApplicationModel>>
     state = const UiState.loading();
     final result = await _repository.getApplications(_userId);
     result.when(
-      success: (data) => state = UiState.success(data),
+      success: (data) {
+        state = UiState.success(data);
+        _syncReminders(data);
+      },
       failure: (msg) => state = UiState.error(msg),
     );
+  }
+
+  void _syncReminders(List<ApplicationModel> applications) {
+    final relevant = applications.where((a) => a.deadline != null && !a.isRejected && !a.isDeadlinePassed).toList();
+    NotificationService.instance.syncApplicationReminders(relevant.map((a) => a.toDueItem()).toList());
   }
 
   Future<bool> addApplication({
@@ -73,6 +90,10 @@ class ApplicationsNotifier extends StateNotifier<UiState<List<ApplicationModel>>
     );
     final result = await _repository.updateApplication(updated);
     if (result.isSuccess) {
+      const terminalStatuses = {'rejected', 'withdrawn', 'selected'};
+      if (terminalStatuses.contains(status)) {
+        await NotificationService.instance.cancelForApplication(application.id);
+      }
       await load();
       return true;
     }
@@ -82,6 +103,7 @@ class ApplicationsNotifier extends StateNotifier<UiState<List<ApplicationModel>>
   Future<bool> deleteApplication(String id) async {
     final result = await _repository.deleteApplication(id);
     if (result.isSuccess) {
+      await NotificationService.instance.cancelForApplication(id);
       await load();
       return true;
     }

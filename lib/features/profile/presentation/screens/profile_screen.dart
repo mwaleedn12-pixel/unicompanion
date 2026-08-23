@@ -30,7 +30,6 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 const SizedBox(height: 20),
 
-                // Profile Header
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
@@ -76,7 +75,6 @@ class ProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
-                // Academic Info
                 if (profile.isFscStudent && (profile.matricPercentage != null || profile.fscPercentage != null)) ...[
                   _SectionTitle(title: 'Academic Info'),
                   const SizedBox(height: 10),
@@ -99,7 +97,6 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
                 ],
 
-                // Interests
                 if (profile.careerInterests.isNotEmpty) ...[
                   _SectionTitle(title: 'Career Interests'),
                   const SizedBox(height: 10),
@@ -115,7 +112,6 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: 24),
                 ],
 
-                // Settings Section
                 _SectionTitle(title: 'Settings'),
                 const SizedBox(height: 10),
 
@@ -126,6 +122,26 @@ class ProfileScreen extends ConsumerWidget {
                   trailing: Switch(
                     value: Theme.of(context).brightness == Brightness.dark,
                     onChanged: (_) => ref.read(themeModeProvider.notifier).toggleTheme(),
+                    activeColor: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _SettingsTile(
+                  icon: Icons.notifications_active_rounded,
+                  title: 'Deadline Reminders',
+                  color: AppColors.accent,
+                  trailing: Switch(
+                    value: ref.watch(remindersEnabledProvider),
+                    onChanged: (value) async {
+                      await ref.read(remindersEnabledProvider.notifier).setEnabled(value);
+                      if (!context.mounted) return;
+                      final nowEnabled = ref.read(remindersEnabledProvider);
+                      if (value && !nowEnabled) {
+                        context.showSnackBar('Notification permission denied — enable it in system settings.');
+                      } else {
+                        context.showSnackBar(nowEnabled ? 'Deadline reminders on' : 'Deadline reminders off');
+                      }
+                    },
                     activeColor: AppColors.primary,
                   ),
                 ),
@@ -166,7 +182,6 @@ class ProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
-                // Logout
                 SizedBox(
                   width: double.infinity,
                   height: 52,

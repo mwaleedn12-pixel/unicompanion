@@ -3,8 +3,40 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/services/supabase_service.dart';
 import '../../../../core/services/local_storage_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/utils/ui_state.dart';
+import '../../../academics/presentation/providers/assignment_provider.dart';
+import '../../../applications/presentation/providers/application_provider.dart';
 import '../../../home/presentation/providers/home_provider.dart';
+
+final remindersEnabledProvider = StateNotifierProvider<RemindersEnabledNotifier, bool>((ref) {
+  return RemindersEnabledNotifier(ref);
+});
+
+class RemindersEnabledNotifier extends StateNotifier<bool> {
+  final Ref _ref;
+  RemindersEnabledNotifier(this._ref) : super(LocalStorageService.remindersEnabled);
+
+  Future<void> setEnabled(bool value) async {
+    if (value) {
+      final granted = await NotificationService.instance.requestPermission();
+      if (!granted) {
+        state = false;
+        await LocalStorageService.setRemindersEnabled(false);
+        return;
+      }
+      state = value;
+      await LocalStorageService.setRemindersEnabled(value);
+      await _ref.read(assignmentsProvider.notifier).load();
+      await _ref.read(applicationsProvider.notifier).load();
+      return;
+    }
+
+    await NotificationService.instance.cancelAll();
+    state = value;
+    await LocalStorageService.setRemindersEnabled(value);
+  }
+}
 
 final profileActionProvider = StateNotifierProvider<ProfileActionNotifier, UiState<void>>((ref) {
   final client = ref.watch(supabaseClientProvider);

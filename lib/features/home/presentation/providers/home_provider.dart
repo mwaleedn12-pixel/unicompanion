@@ -4,7 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/services/supabase_service.dart';
 import '../../../../core/utils/ui_state.dart';
 
-// ── User Profile Model ──
 class UserProfile {
   final String id;
   final String fullName;
@@ -20,6 +19,8 @@ class UserProfile {
   final int? currentSemester;
   final int? enrollmentYear;
   final String? avatarUrl;
+  final int totalCreditsRequired;
+  final int totalSemestersRequired;
 
   const UserProfile({
     required this.id,
@@ -36,6 +37,8 @@ class UserProfile {
     this.currentSemester,
     this.enrollmentYear,
     this.avatarUrl,
+    this.totalCreditsRequired = 130,
+    this.totalSemestersRequired = 8,
   });
 
   bool get isFscStudent => userType == 'fsc_student';
@@ -62,11 +65,12 @@ class UserProfile {
       currentSemester: json['current_semester'],
       enrollmentYear: json['enrollment_year'],
       avatarUrl: json['avatar_url'],
+      totalCreditsRequired: json['total_credits_required'] ?? 130,
+      totalSemestersRequired: json['total_semesters_required'] ?? 8,
     );
   }
 }
 
-// ── Profile Provider ──
 final userProfileProvider =
     StateNotifierProvider<UserProfileNotifier, UiState<UserProfile>>((ref) {
   final client = ref.watch(supabaseClientProvider);
@@ -96,7 +100,6 @@ class UserProfileNotifier extends StateNotifier<UiState<UserProfile>> {
           .maybeSingle();
 
       if (data == null) {
-        // Profile not created yet — use auth metadata
         final user = _client.auth.currentUser!;
         state = UiState.success(UserProfile(
           id: user.id,
@@ -112,7 +115,6 @@ class UserProfileNotifier extends StateNotifier<UiState<UserProfile>> {
   }
 }
 
-// ── Greeting based on time ──
 String getGreeting() {
   final hour = DateTime.now().hour;
   if (hour < 12) return 'Good Morning';

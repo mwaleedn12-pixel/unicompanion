@@ -7,6 +7,7 @@ import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/local_storage_service.dart';
+import 'core/services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,16 +24,13 @@ Future<void> main() async {
 
   await LocalStorageService.init();
 
-  // Sync onboarding status from Supabase BEFORE app starts
+  await NotificationService.instance.init();
+
   await _syncOnboardingFromSupabase();
 
   runApp(const ProviderScope(child: UniCompanionApp()));
 }
 
-/// Always re-syncs local cache from Supabase for the currently authenticated
-/// user on every cold start / page reload. This intentionally does NOT trust
-/// the local cache first — a browser reload can be a different account than
-/// whichever one last wrote to local storage (e.g. testing multiple accounts).
 Future<void> _syncOnboardingFromSupabase() async {
   final user = Supabase.instance.client.auth.currentUser;
   if (user == null) return;

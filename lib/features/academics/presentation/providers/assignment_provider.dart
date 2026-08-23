@@ -1,10 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/supabase_service.dart';
 import '../../../../core/utils/ui_state.dart';
 import '../../data/models/assignment_model.dart';
 import '../../domain/repositories/academics_repository.dart';
 import 'semester_provider.dart';
+
+extension _AssignmentDueItem on AssignmentModel {
+  DueItem toDueItem() {
+    final typeLabel = type[0].toUpperCase() + type.substring(1);
+    return DueItem(
+      id: id,
+      title: '$typeLabel: $title',
+      subtitle: courseName ?? 'No course linked',
+      dueDate: dueDate,
+    );
+  }
+}
 
 final assignmentsProvider = StateNotifierProvider<AssignmentsNotifier, UiState<List<AssignmentModel>>>((ref) {
   final repository = ref.watch(academicsRepositoryProvider);
@@ -14,7 +27,6 @@ final assignmentsProvider = StateNotifierProvider<AssignmentsNotifier, UiState<L
   return notifier;
 });
 
-/// Upcoming (incomplete, not overdue-only) assignments sorted by due date — used by the Track screen.
 final upcomingAssignmentsProvider = Provider<List<AssignmentModel>>((ref) {
   final state = ref.watch(assignmentsProvider);
   final all = state.dataOrNull ?? [];
@@ -34,9 +46,17 @@ class AssignmentsNotifier extends StateNotifier<UiState<List<AssignmentModel>>> 
     state = const UiState.loading();
     final result = await _repository.getAssignments(_userId);
     result.when(
-      success: (data) => state = UiState.success(data),
+      success: (data) {
+        state = UiState.success(data);
+        _syncReminders(data);
+      },
       failure: (msg) => state = UiState.error(msg),
     );
+  }
+
+  void _syncReminders(List<AssignmentModel> assignments) {
+    final incomplete = assignments.where((a) => !a.isCompleted).toList();
+    NotificationService.instance.syncAssignmentReminders(incomplete.map((a) => a.toDueItem()).toList());
   }
 
   Future<bool> addAssignment({
@@ -73,6 +93,9 @@ class AssignmentsNotifier extends StateNotifier<UiState<List<AssignmentModel>>> 
   Future<bool> toggleComplete(AssignmentModel assignment) async {
     final result = await _repository.toggleAssignmentComplete(assignment.id, !assignment.isCompleted);
     if (result.isSuccess) {
+      if (!assignment.isCompleted) {
+        await NotificationService.instance.cancelForAssignment(assignment.id);
+      }
       await load();
       return true;
     }
@@ -82,6 +105,7 @@ class AssignmentsNotifier extends StateNotifier<UiState<List<AssignmentModel>>> 
   Future<bool> deleteAssignment(String id) async {
     final result = await _repository.deleteAssignment(id);
     if (result.isSuccess) {
+      await NotificationService.instance.cancelForAssignment(id);
       await load();
       return true;
     }
