@@ -33,4 +33,10 @@ abstract final class RouteNames {
   // Module 34-35
   static const String shortlist = 'shortlist';
   static const String applicationTracker = 'applications';
+
+  // Module 32
+  static const String testPrep = 'test-prep';
+
+  // Module 36
+  static const String universityMatch = 'match';
 }

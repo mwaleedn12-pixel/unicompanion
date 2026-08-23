@@ -4,44 +4,56 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/services/local_storage_service.dart';
-import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/common_widgets.dart';
+import '../../../home/presentation/providers/home_provider.dart';
 import '../../../academics/presentation/providers/semester_provider.dart';
 import '../../../academics/presentation/providers/assignment_provider.dart';
 import '../../../academics/data/models/semester_model.dart';
 import '../../../applications/presentation/providers/shortlist_provider.dart';
 import '../../../applications/presentation/providers/application_provider.dart';
-import '../widgets/degree_progress_card.dart'; // Module 26
+import '../widgets/degree_progress_card.dart';
 
 class TrackScreen extends ConsumerWidget {
   const TrackScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userType = LocalStorageService.userType ?? AppConstants.userTypeFsc;
-    final isFsc = userType == AppConstants.userTypeFsc;
+    // ── FIX: Read user type from Supabase profile, not LocalStorageService ──
+    final profileState = ref.watch(userProfileProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              Text('Track', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800)),
-              const SizedBox(height: 4),
-              Text(
-                isFsc ? 'Track your applications & deadlines' : 'Track your courses & academics',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight),
-              ),
-              const SizedBox(height: 24),
-
-              if (isFsc) ..._fscTrackContent(context, ref),
-              if (!isFsc) ..._uniTrackContent(context, ref),
-            ],
-          ),
+      body: profileState.when(
+        initial: () => const AppLoadingIndicator(),
+        loading: () => const AppLoadingIndicator(message: 'Loading...'),
+        error: (msg) => AppErrorView(
+          message: msg,
+          onRetry: () => ref.read(userProfileProvider.notifier).loadProfile(),
         ),
+        success: (profile) {
+          final isFsc = profile.isFscStudent;
+
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  Text('Track', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 4),
+                  Text(
+                    isFsc ? 'Track your applications & deadlines' : 'Track your courses & academics',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight),
+                  ),
+                  const SizedBox(height: 24),
+
+                  if (isFsc) ..._fscTrackContent(context, ref),
+                  if (!isFsc) ..._uniTrackContent(context, ref),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -214,7 +226,7 @@ class TrackScreen extends ConsumerWidget {
 
       const SizedBox(height: 12),
 
-      // Module 25 — link to the Academic Dashboard
+      // Academic Dashboard link
       GestureDetector(
         onTap: () => context.push('/track/dashboard'),
         child: Container(
@@ -326,7 +338,6 @@ class TrackScreen extends ConsumerWidget {
       Text('Degree Progress', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
       const SizedBox(height: 14),
 
-      // Module 26 — replaces the old inline 130-credit bar
       const DegreeProgressCard(),
 
       const SizedBox(height: 32),

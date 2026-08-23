@@ -11,6 +11,7 @@ import '../../data/models/program_model.dart';
 import '../../data/models/campus_model.dart';
 import '../providers/explore_provider.dart';
 import '../../../applications/presentation/providers/shortlist_provider.dart';
+import '../widgets/university_reviews_section.dart'; // Module 30
 
 class UniversityDetailScreen extends ConsumerWidget {
   final String universityId;
@@ -63,34 +64,10 @@ class _DetailBody extends ConsumerWidget {
             ),
           ),
           actions: [
-            // Module 35 — shortlist bookmark toggle
+            // Shortlist bookmark toggle (with loading + error feedback)
             Padding(
               padding: const EdgeInsets.all(8),
-              child: Consumer(
-                builder: (context, ref, _) {
-                  final isShortlisted = ref.watch(isShortlistedProvider(university.id));
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        isShortlisted ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                        color: isShortlisted ? AppColors.primary : AppColors.textPrimaryLight,
-                      ),
-                      onPressed: () async {
-                        final ok = await ref.read(shortlistProvider.notifier).toggle(university.id);
-                        if (context.mounted && ok) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(isShortlisted ? 'Removed from shortlist' : 'Added to shortlist')),
-                          );
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
+              child: _BookmarkButton(universityId: university.id),
             ),
           ],
           flexibleSpace: FlexibleSpaceBar(
@@ -200,7 +177,6 @@ class _DetailBody extends ConsumerWidget {
                       return _PlaceholderBox(text: 'No programs listed yet');
                     }
 
-                    // Group by degree level
                     final grouped = <String, List<ProgramModel>>{};
                     for (final p in programs) {
                       grouped.putIfAbsent(p.degreeLevel, () => []).add(p);
@@ -253,6 +229,13 @@ class _DetailBody extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
+                // ═══════════════════════════════════════
+                // Module 30: Student Reviews
+                // ═══════════════════════════════════════
+                UniversityReviewsSection(universityId: university.id),
+
+                const SizedBox(height: 24),
+
                 // Website Button
                 if (university.website != null)
                   SizedBox(
@@ -293,6 +276,70 @@ class _DetailBody extends ConsumerWidget {
   }
 }
 
+/// Bookmark button with loading spinner + error SnackBar
+class _BookmarkButton extends ConsumerStatefulWidget {
+  final String universityId;
+  const _BookmarkButton({required this.universityId});
+
+  @override
+  ConsumerState<_BookmarkButton> createState() => _BookmarkButtonState();
+}
+
+class _BookmarkButtonState extends ConsumerState<_BookmarkButton> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isShortlisted = ref.watch(isShortlistedProvider(widget.universityId));
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: _busy
+          ? const Padding(
+              padding: EdgeInsets.all(12),
+              child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+            )
+          : IconButton(
+              icon: Icon(
+                isShortlisted ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                color: isShortlisted ? AppColors.error : AppColors.textPrimaryLight,
+              ),
+              onPressed: () async {
+                setState(() => _busy = true);
+                try {
+                  final ok = await ref.read(shortlistProvider.notifier).toggle(widget.universityId);
+                  if (mounted) {
+                    if (ok) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isShortlisted ? 'Removed from shortlist' : 'Added to shortlist'),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Failed — check your connection'), duration: Duration(seconds: 2)),
+                      );
+                    }
+                  }
+                } catch (_) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Something went wrong'), duration: Duration(seconds: 2)),
+                    );
+                  }
+                } finally {
+                  if (mounted) setState(() => _busy = false);
+                }
+              },
+            ),
+    );
+  }
+}
+
 // ── Inline Program Tile (on university detail) ──
 
 class _ProgramTile extends StatefulWidget {
@@ -319,7 +366,6 @@ class _ProgramTileState extends State<_ProgramTile> {
       ),
       child: Column(
         children: [
-          // Collapsed row
           InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => setState(() => _expanded = !_expanded),
@@ -351,8 +397,6 @@ class _ProgramTileState extends State<_ProgramTile> {
               ),
             ),
           ),
-
-          // Expanded details
           if (_expanded)
             Container(
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
@@ -488,7 +532,6 @@ class _CampusTile extends StatelessWidget {
                 ),
             ],
           ),
-
           if (campus.description != null) ...[
             const SizedBox(height: 8),
             Text(
@@ -498,10 +541,7 @@ class _CampusTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ],
-
           const SizedBox(height: 8),
-
-          // Facilities as small chips
           Wrap(
             spacing: 4,
             runSpacing: 4,
@@ -517,7 +557,6 @@ class _CampusTile extends StatelessWidget {
               ),
             )).toList(),
           ),
-
           if (campus.studentCount != null || campus.establishedYear != null) ...[
             const SizedBox(height: 6),
             Row(

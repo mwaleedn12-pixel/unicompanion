@@ -93,6 +93,29 @@ class ToolsScreen extends StatelessWidget {
                 onTap: () => context.go('${RouteNames.tools}/compare'),
               ),
 
+              const SizedBox(height: 24),
+              Text('Test & Match', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 12),
+
+              // Module 32 — Entry Test Prep
+              _ToolCard(
+                icon: Icons.quiz_rounded,
+                title: 'Entry Test Prep',
+                subtitle: 'Practice MCQs for ECAT, MDCAT, NET & more with timer',
+                gradient: [const Color(0xFFF59E0B), const Color(0xFFFBBF24)],
+                onTap: () => context.go('${RouteNames.tools}/test-prep'),
+              ),
+              const SizedBox(height: 12),
+
+              // Module 36 — University Match
+              _ToolCard(
+                icon: Icons.hub_rounded,
+                title: 'University Match',
+                subtitle: 'Answer 5 questions and find your best-fit universities',
+                gradient: [const Color(0xFF14B8A6), const Color(0xFF5EEAD4)],
+                onTap: () => context.go('${RouteNames.tools}/match'),
+              ),
+
               const SizedBox(height: 32),
             ],
           ),

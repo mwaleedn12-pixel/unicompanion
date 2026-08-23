@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/extensions/context_extensions.dart';
 import '../../data/models/university_model.dart';
+import '../../../applications/presentation/providers/shortlist_provider.dart';
 
-class UniversityCard extends StatelessWidget {
+class UniversityCard extends ConsumerWidget {
   final UniversityModel university;
   final VoidCallback onTap;
 
   const UniversityCard({super.key, required this.university, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isShortlisted = ref.watch(isShortlistedProvider(university.id));
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -106,6 +110,11 @@ class UniversityCard extends StatelessWidget {
                 ),
               ),
 
+              // ── Bookmark toggle ──
+              _ShortlistButton(universityId: university.id, isShortlisted: isShortlisted),
+
+              const SizedBox(width: 6),
+
               // Arrow
               Container(
                 width: 32,
@@ -131,6 +140,77 @@ class UniversityCard extends StatelessWidget {
         return [AppColors.secondary, AppColors.secondaryLight];
       default:
         return [AppColors.accent, AppColors.accentLight];
+    }
+  }
+}
+
+/// Animated bookmark toggle with loading + error feedback
+class _ShortlistButton extends ConsumerStatefulWidget {
+  final String universityId;
+  final bool isShortlisted;
+  const _ShortlistButton({required this.universityId, required this.isShortlisted});
+
+  @override
+  ConsumerState<_ShortlistButton> createState() => _ShortlistButtonState();
+}
+
+class _ShortlistButtonState extends ConsumerState<_ShortlistButton> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _busy ? null : _toggle,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: widget.isShortlisted
+              ? AppColors.primary.withValues(alpha: 0.12)
+              : Theme.of(context).colorScheme.outline.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: _busy
+            ? const Padding(
+                padding: EdgeInsets.all(8),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(
+                widget.isShortlisted ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                size: 20,
+                color: widget.isShortlisted ? AppColors.primary : AppColors.textTertiaryLight,
+              ),
+      ),
+    );
+  }
+
+  Future<void> _toggle() async {
+    setState(() => _busy = true);
+    try {
+      final ok = await ref.read(shortlistProvider.notifier).toggle(widget.universityId);
+      if (mounted) {
+        if (ok) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(widget.isShortlisted ? 'Removed from shortlist' : 'Added to shortlist'),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed — check your connection'), duration: Duration(seconds: 2)),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Something went wrong'), duration: Duration(seconds: 2)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _busy = false);
     }
   }
 }
