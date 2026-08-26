@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,6 +50,7 @@ class _FscHomeView extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
+            // ── Greeting ── fade + slide
             Row(
               children: [
                 Expanded(
@@ -74,12 +76,24 @@ class _FscHomeView extends StatelessWidget {
                     profile.firstNameGreeting[0].toUpperCase(),
                     style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 20),
                   ),
-                ),
+                )
+                    .animate()
+                    .scale(
+                      begin: const Offset(0.0, 0.0),
+                      end: const Offset(1.0, 1.0),
+                      duration: 400.ms,
+                      delay: 200.ms,
+                      curve: Curves.easeOutBack,
+                    ),
               ],
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms)
+                .slideX(begin: -0.05, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 24),
 
+            // ── Banner ── slide up + fade
             InfoBanner(
               icon: Icons.search_rounded,
               title: 'Find Your Dream University',
@@ -87,10 +101,14 @@ class _FscHomeView extends StatelessWidget {
               color: AppColors.primary,
               actionText: 'Explore',
               onAction: () => context.go(RouteNames.explore),
-            ),
+            )
+                .animate(delay: 150.ms)
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 24),
 
+            // ── Stats row ──
             if (profile.matricPercentage != null || profile.fscPercentage != null)
               Row(
                 children: [
@@ -117,21 +135,30 @@ class _FscHomeView extends StatelessWidget {
                       ),
                     ),
                 ],
-              ),
+              )
+                  .animate(delay: 300.ms)
+                  .fadeIn(duration: 400.ms)
+                  .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             if (profile.matricPercentage != null || profile.fscPercentage != null)
               const SizedBox(height: 24),
 
-            Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
+            // ── Quick Actions header ──
+            Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge)
+                .animate(delay: 400.ms)
+                .fadeIn(duration: 300.ms),
             const SizedBox(height: 12),
 
-            GridView.count(
-              crossAxisCount: 2,
+            // ── Quick Actions grid ── stagger each card
+            GridView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                mainAxisExtent: 165,
+              ),
               children: [
                 QuickActionCard(
                   icon: Icons.calculate_rounded,
@@ -139,40 +166,55 @@ class _FscHomeView extends StatelessWidget {
                   subtitle: 'Calculate aggregate',
                   color: AppColors.primary,
                   onTap: () => context.go('${RouteNames.tools}/merit'),
-                ),
+                )
+                    .animate(delay: 450.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
                 QuickActionCard(
                   icon: Icons.checklist_rounded,
                   title: 'Eligibility Check',
                   subtitle: 'Am I eligible?',
                   color: AppColors.secondary,
                   onTap: () => context.go('${RouteNames.tools}/eligibility'),
-                ),
+                )
+                    .animate(delay: 530.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
                 QuickActionCard(
                   icon: Icons.compare_arrows_rounded,
                   title: 'Compare Unis',
                   subtitle: 'Side by side',
                   color: AppColors.accent,
                   onTap: () => context.go('${RouteNames.tools}/compare'),
-                ),
+                )
+                    .animate(delay: 610.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
                 QuickActionCard(
                   icon: Icons.card_giftcard_rounded,
                   title: 'Scholarships',
                   subtitle: 'Find funding',
                   color: AppColors.success,
                   onTap: () => context.go(RouteNames.explore),
-                ),
+                )
+                    .animate(delay: 690.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
               ],
             ),
 
             const SizedBox(height: 24),
 
+            // ── Interests ──
             if (profile.careerInterests.isNotEmpty) ...[
-              Text('Your Interests', style: Theme.of(context).textTheme.titleLarge),
+              Text('Your Interests', style: Theme.of(context).textTheme.titleLarge)
+                  .animate(delay: 750.ms)
+                  .fadeIn(duration: 300.ms),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: profile.careerInterests.take(6).map((interest) {
+                children: profile.careerInterests.take(6).toList().asMap().entries.map((entry) {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
@@ -180,16 +222,22 @@ class _FscHomeView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      interest,
+                      entry.value,
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primary),
                     ),
-                  );
+                  )
+                      .animate(delay: (800 + entry.key * 60).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.1, end: 0, duration: 300.ms);
                 }).toList(),
               ),
               const SizedBox(height: 24),
             ],
 
-            Text('Getting Started', style: Theme.of(context).textTheme.titleLarge),
+            // ── Getting Started ──
+            Text('Getting Started', style: Theme.of(context).textTheme.titleLarge)
+                .animate(delay: 850.ms)
+                .fadeIn(duration: 300.ms),
             const SizedBox(height: 12),
             DeadlineCard(
               title: 'Explore Universities',
@@ -197,7 +245,10 @@ class _FscHomeView extends StatelessWidget {
               date: 'Start',
               icon: Icons.location_city_rounded,
               color: AppColors.primary,
-            ),
+            )
+                .animate(delay: 900.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
             const SizedBox(height: 8),
             DeadlineCard(
               title: 'Take Career Quiz',
@@ -205,7 +256,10 @@ class _FscHomeView extends StatelessWidget {
               date: 'Try Now',
               icon: Icons.psychology_rounded,
               color: AppColors.secondary,
-            ),
+            )
+                .animate(delay: 970.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
             const SizedBox(height: 8),
             DeadlineCard(
               title: 'Calculate Your Merit',
@@ -213,7 +267,10 @@ class _FscHomeView extends StatelessWidget {
               date: 'Calculate',
               icon: Icons.calculate_rounded,
               color: AppColors.accent,
-            ),
+            )
+                .animate(delay: 1040.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 32),
           ],
@@ -237,6 +294,7 @@ class _UniHomeView extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
+            // ── Greeting ──
             Row(
               children: [
                 Expanded(
@@ -267,12 +325,24 @@ class _UniHomeView extends StatelessWidget {
                     profile.firstNameGreeting[0].toUpperCase(),
                     style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w700, fontSize: 20),
                   ),
-                ),
+                )
+                    .animate()
+                    .scale(
+                      begin: const Offset(0.0, 0.0),
+                      end: const Offset(1.0, 1.0),
+                      duration: 400.ms,
+                      delay: 200.ms,
+                      curve: Curves.easeOutBack,
+                    ),
               ],
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms)
+                .slideX(begin: -0.05, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 24),
 
+            // ── Stats row 1 ──
             Row(
               children: [
                 Expanded(
@@ -295,10 +365,14 @@ class _UniHomeView extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
+            )
+                .animate(delay: 150.ms)
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 12),
 
+            // ── Stats row 2 ──
             Row(
               children: [
                 Expanded(
@@ -321,20 +395,29 @@ class _UniHomeView extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
+            )
+                .animate(delay: 250.ms)
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 24),
 
-            Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge),
+            // ── Quick Actions header ──
+            Text('Quick Actions', style: Theme.of(context).textTheme.titleLarge)
+                .animate(delay: 350.ms)
+                .fadeIn(duration: 300.ms),
             const SizedBox(height: 12),
 
-            GridView.count(
-              crossAxisCount: 2,
+            // ── Quick Actions grid ──
+            GridView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.5,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                mainAxisExtent: 165,
+              ),
               children: [
                 QuickActionCard(
                   icon: Icons.calculate_rounded,
@@ -342,33 +425,46 @@ class _UniHomeView extends StatelessWidget {
                   subtitle: 'Calculate semester GPA',
                   color: AppColors.primary,
                   onTap: () => context.go('${RouteNames.tools}/gpa'),
-                ),
+                )
+                    .animate(delay: 400.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
                 QuickActionCard(
                   icon: Icons.auto_graph_rounded,
                   title: 'CGPA Calculator',
                   subtitle: 'Overall CGPA',
                   color: AppColors.secondary,
                   onTap: () => context.go('${RouteNames.tools}/cgpa'),
-                ),
+                )
+                    .animate(delay: 480.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
                 QuickActionCard(
                   icon: Icons.fact_check_rounded,
                   title: 'Attendance',
                   subtitle: 'Track your classes',
                   color: AppColors.accent,
                   onTap: () => context.go('${RouteNames.tools}/attendance'),
-                ),
+                )
+                    .animate(delay: 560.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
                 QuickActionCard(
                   icon: Icons.track_changes_rounded,
                   title: 'Target GPA',
                   subtitle: 'What do I need?',
                   color: AppColors.info,
                   onTap: () => context.go('${RouteNames.tools}/target-gpa'),
-                ),
+                )
+                    .animate(delay: 640.ms)
+                    .fadeIn(duration: 350.ms)
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 350.ms, curve: Curves.easeOut),
               ],
             ),
 
             const SizedBox(height: 24),
 
+            // ── Add courses banner ──
             InfoBanner(
               icon: Icons.add_circle_outline_rounded,
               title: 'Add Your Courses',
@@ -376,11 +472,17 @@ class _UniHomeView extends StatelessWidget {
               color: AppColors.secondary,
               actionText: 'Add Now',
               onAction: () => context.go(RouteNames.track),
-            ),
+            )
+                .animate(delay: 700.ms)
+                .fadeIn(duration: 400.ms)
+                .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 16),
 
-            Text('Tools & Resources', style: Theme.of(context).textTheme.titleLarge),
+            // ── Tools & Resources ──
+            Text('Tools & Resources', style: Theme.of(context).textTheme.titleLarge)
+                .animate(delay: 800.ms)
+                .fadeIn(duration: 300.ms),
             const SizedBox(height: 12),
 
             DeadlineCard(
@@ -389,7 +491,10 @@ class _UniHomeView extends StatelessWidget {
               date: 'Open',
               icon: Icons.grade_rounded,
               color: AppColors.primary,
-            ),
+            )
+                .animate(delay: 850.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
             const SizedBox(height: 8),
             DeadlineCard(
               title: 'Degree Progress',
@@ -397,7 +502,10 @@ class _UniHomeView extends StatelessWidget {
               date: 'View',
               icon: Icons.pie_chart_rounded,
               color: AppColors.secondary,
-            ),
+            )
+                .animate(delay: 920.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
             const SizedBox(height: 8),
             DeadlineCard(
               title: 'Semester Planner',
@@ -405,7 +513,10 @@ class _UniHomeView extends StatelessWidget {
               date: 'Plan',
               icon: Icons.event_note_rounded,
               color: AppColors.accent,
-            ),
+            )
+                .animate(delay: 990.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 32),
           ],

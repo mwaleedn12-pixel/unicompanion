@@ -164,6 +164,15 @@
       ]
     },
     {
+      "name": "table_calendar",
+      "version": "3.2.1",
+      "dependencies": [
+        "flutter",
+        "intl",
+        "simple_gesture_detector"
+      ]
+    },
+    {
       "name": "percent_indicator",
       "version": "4.2.5",
       "dependencies": [
@@ -865,6 +874,13 @@
         "flutter_local_notifications_platform_interface",
         "path",
         "xdg_directories"
+      ]
+    },
+    {
+      "name": "simple_gesture_detector",
+      "version": "0.2.1",
+      "dependencies": [
+        "flutter"
       ]
     },
     {
@@ -1706,22 +1722,6 @@
         "collection",
         "meta",
         "pub_semver"
-      ]
-    },
-    {
-      "name": "table_calendar",
-      "version": "3.2.1",
-      "dependencies": [
-        "flutter",
-        "intl",
-        "simple_gesture_detector"
-      ]
-    },
-    {
-      "name": "simple_gesture_detector",
-      "version": "0.2.1",
-      "dependencies": [
-        "flutter"
       ]
     }
   ],

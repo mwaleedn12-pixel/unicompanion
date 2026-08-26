@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,7 +22,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   Future<void> _checkAuthAndRedirect() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Give animations time to play before navigating
+    await Future.delayed(const Duration(milliseconds: 1800));
 
     if (!mounted) return;
 
@@ -57,39 +59,111 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.primaryLight],
+            colors: [Color(0xFF2A3EB1), AppColors.primary, AppColors.primaryLight],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
+            stops: [0.0, 0.5, 1.0],
           ),
         ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // ── Logo icon ── scale up + fade in
               Container(
-                width: 90,
-                height: 90,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(28),
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.25),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 30,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.school_rounded, color: Colors.white, size: 48),
-              ),
-              const SizedBox(height: 20),
+                child: const Icon(Icons.school_rounded, color: Colors.white, size: 50),
+              )
+                  .animate()
+                  .scale(
+                    begin: const Offset(0.5, 0.5),
+                    end: const Offset(1.0, 1.0),
+                    duration: 600.ms,
+                    curve: Curves.easeOutBack,
+                  )
+                  .fadeIn(duration: 400.ms),
+
+              const SizedBox(height: 24),
+
+              // ── App name ── slide up + fade in (delayed)
               Text(
                 'UniCompanion',
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
                     ),
-              ),
-              const SizedBox(height: 24),
-              const SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+              )
+                  .animate(delay: 300.ms)
+                  .slideY(begin: 0.3, end: 0, duration: 500.ms, curve: Curves.easeOutCubic)
+                  .fadeIn(duration: 500.ms),
+
+              const SizedBox(height: 8),
+
+              // ── Tagline ── fade in with shimmer
+              Text(
+                'Your Academic Journey, Simplified',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.75),
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.3,
+                    ),
+              )
+                  .animate(delay: 600.ms)
+                  .fadeIn(duration: 500.ms)
+                  .shimmer(
+                    delay: 1200.ms,
+                    duration: 1800.ms,
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+
+              const SizedBox(height: 40),
+
+              // ── Loading dots ── fade in late + gentle pulse
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(3, (i) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.7),
+                      shape: BoxShape.circle,
+                    ),
+                  )
+                      .animate(
+                        delay: (900 + i * 150).ms,
+                        onPlay: (c) => c.repeat(reverse: true),
+                      )
+                      .fadeIn(duration: 300.ms)
+                      .scale(
+                        begin: const Offset(0.6, 0.6),
+                        end: const Offset(1.0, 1.0),
+                        duration: 600.ms,
+                        curve: Curves.easeInOut,
+                      );
+                }),
               ),
             ],
           ),

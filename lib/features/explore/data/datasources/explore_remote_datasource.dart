@@ -78,6 +78,7 @@ class ExploreRemoteDatasource {
   Future<List<Map<String, dynamic>>> getCampuses({
     String? universityId,
     String? city,
+    String? search,
   }) async {
     var query = _client
         .from('campuses')
@@ -90,6 +91,17 @@ class ExploreRemoteDatasource {
 
     if (city != null && city != 'all') {
       query = query.eq('city', city);
+    }
+
+    if (search != null && search.isNotEmpty) {
+      // Find matching university IDs first, then filter campuses
+      final matchingUnis = await _client
+          .from('universities')
+          .select('id')
+          .or('name.ilike.%$search%,short_name.ilike.%$search%');
+      final uniIds = matchingUnis.map((u) => u['id'] as String).toList();
+      if (uniIds.isEmpty) return [];
+      query = query.inFilter('university_id', uniIds);
     }
 
     return await query

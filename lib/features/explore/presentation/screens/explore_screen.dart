@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,6 +35,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ── Header ── fade + slide
             Container(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
               child: Column(
@@ -44,10 +46,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   Text('Find your dream university', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight)),
                 ],
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms)
+                .slideX(begin: -0.05, end: 0, duration: 400.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 16),
 
+            // ── Search bar ── fade + slide down
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -83,11 +89,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   ),
                 ),
               ),
-            ),
+            )
+                .animate(delay: 100.ms)
+                .fadeIn(duration: 350.ms)
+                .slideY(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 12),
 
-            // Row 1: Scholarships + Career Quiz
+            // ── Quick buttons row 1 ── stagger
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -97,11 +106,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   Expanded(child: _QuickButton(icon: Icons.psychology_rounded, label: 'Career Quiz', color: AppColors.primary, onTap: () => context.go('/career-quiz'))),
                 ],
               ),
-            ),
+            )
+                .animate(delay: 200.ms)
+                .fadeIn(duration: 350.ms)
+                .slideY(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 8),
 
-            // Row 2: Programs + Campuses
+            // ── Quick buttons row 2 ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -111,11 +123,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   Expanded(child: _QuickButton(icon: Icons.location_city_rounded, label: 'Campuses', color: AppColors.secondaryDark, bgColor: AppColors.secondarySurface, onTap: () => context.go('/campuses'))),
                 ],
               ),
-            ),
+            )
+                .animate(delay: 280.ms)
+                .fadeIn(duration: 350.ms)
+                .slideY(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 8),
 
-            // Row 3: AI Assistant + Jobs + Community
+            // ── Quick buttons row 3 ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
@@ -127,10 +142,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   Expanded(child: _QuickButton(icon: Icons.forum_rounded, label: 'Community', color: const Color(0xFFEA580C), bgColor: const Color(0xFFFFF3E0), onTap: () => context.go(RouteNames.community))),
                 ],
               ),
-            ),
+            )
+                .animate(delay: 360.ms)
+                .fadeIn(duration: 350.ms)
+                .slideY(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 12),
 
+            // ── Filter chips ── slide in from right
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -149,10 +168,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   FilterChipButton(label: 'A-Z', isSelected: filter.sortBy == 'name', onTap: () => ref.read(exploreFilterProvider.notifier).state = filter.copyWith(sortBy: 'name')),
                 ],
               ),
-            ),
+            )
+                .animate(delay: 420.ms)
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: 0.08, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 12),
 
+            // ── Count label ──
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: uniState.when(
@@ -161,10 +184,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 error: (_) => const SizedBox.shrink(),
                 success: (list) => Text('${list.length} universities found', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiaryLight)),
               ),
-            ),
+            )
+                .animate(delay: 480.ms)
+                .fadeIn(duration: 300.ms),
 
             const SizedBox(height: 8),
 
+            // ── University list ──
             Expanded(
               child: uniState.when(
                 initial: () => const AppLoadingIndicator(),
@@ -182,7 +208,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                       return UniversityCard(
                         university: uni,
                         onTap: () => context.push('/explore/university/${uni.id}'),
-                      );
+                      )
+                          .animate()
+                          .fadeIn(duration: 350.ms, delay: (index.clamp(0, 8) * 50).ms)
+                          .slideY(begin: 0.05, end: 0, duration: 350.ms, delay: (index.clamp(0, 8) * 50).ms, curve: Curves.easeOut);
                     },
                   );
                 },

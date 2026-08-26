@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,240 +26,300 @@ class ProfileScreen extends ConsumerWidget {
           initial: () => const AppLoadingIndicator(),
           loading: () => const AppLoadingIndicator(),
           error: (msg) => AppErrorView(message: msg),
-          success: (profile) => SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
+          success: (profile) {
+            int d = 0;
+            const step = 50;
 
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryLight],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+
+                  // ── Profile hero card ──
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 6))],
-                  ),
-                  child: Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.white.withValues(alpha: 0.2),
-                        child: Text(
-                          profile.firstNameGreeting[0].toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 32),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          child: Text(
+                            profile.firstNameGreeting[0].toUpperCase(),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 32),
+                          ),
+                        )
+                            .animate(delay: 200.ms)
+                            .scale(begin: const Offset(0.5, 0.5), end: const Offset(1, 1), duration: 400.ms, curve: Curves.easeOutBack),
+                        const SizedBox(height: 14),
+                        Text(
+                          profile.fullName.isNotEmpty ? profile.fullName : 'Student',
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        profile.fullName.isNotEmpty ? profile.fullName : 'Student',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          profile.isFscStudent ? 'FSC Student' : 'University Student',
-                          style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
-                if (profile.isFscStudent && (profile.matricPercentage != null || profile.fscPercentage != null)) ...[
-                  _SectionTitle(title: 'Academic Info'),
-                  const SizedBox(height: 10),
-                  if (profile.matricPercentage != null)
-                    _InfoTile(icon: Icons.school_outlined, label: 'Matric', value: '${profile.matricPercentage!.toStringAsFixed(1)}%', color: AppColors.secondary),
-                  if (profile.fscPercentage != null)
-                    _InfoTile(icon: Icons.menu_book_rounded, label: 'FSC', value: '${profile.fscPercentage!.toStringAsFixed(1)}%', color: AppColors.primary),
-                  if (profile.fscStream != null)
-                    _InfoTile(icon: Icons.category_rounded, label: 'Stream', value: profile.fscStream!.replaceAll('_', ' ').toUpperCase(), color: AppColors.accent),
-                  const SizedBox(height: 24),
-                ],
-
-                if (profile.isUniversityStudent) ...[
-                  _SectionTitle(title: 'University Info'),
-                  const SizedBox(height: 10),
-                  if (profile.currentSemester != null)
-                    _InfoTile(icon: Icons.calendar_month_rounded, label: 'Semester', value: '${profile.currentSemester}', color: AppColors.primary),
-                  if (profile.enrollmentYear != null)
-                    _InfoTile(icon: Icons.date_range_rounded, label: 'Enrolled', value: '${profile.enrollmentYear}', color: AppColors.secondary),
-                  const SizedBox(height: 24),
-                ],
-
-                if (profile.careerInterests.isNotEmpty) ...[
-                  _SectionTitle(title: 'Career Interests'),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: profile.careerInterests.map((i) => Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(color: AppColors.primarySurface, borderRadius: BorderRadius.circular(20)),
-                      child: Text(i, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.primaryDark)),
-                    )).toList(),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                _SectionTitle(title: 'Settings'),
-                const SizedBox(height: 10),
-
-                _SettingsTile(
-                  icon: Icons.dark_mode_rounded,
-                  title: 'Dark Mode',
-                  color: AppColors.info,
-                  trailing: Switch(
-                    value: Theme.of(context).brightness == Brightness.dark,
-                    onChanged: (_) => ref.read(themeModeProvider.notifier).toggleTheme(),
-                    activeColor: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _SettingsTile(
-                  icon: Icons.notifications_active_rounded,
-                  title: 'Deadline Reminders',
-                  color: AppColors.accent,
-                  trailing: Switch(
-                    value: ref.watch(remindersEnabledProvider),
-                    onChanged: (value) async {
-                      await ref.read(remindersEnabledProvider.notifier).setEnabled(value);
-                      if (!context.mounted) return;
-                      final nowEnabled = ref.read(remindersEnabledProvider);
-                      if (value && !nowEnabled) {
-                        context.showSnackBar('Notification permission denied — enable it in system settings.');
-                      } else {
-                        context.showSnackBar(nowEnabled ? 'Deadline reminders on' : 'Deadline reminders off');
-                      }
-                    },
-                    activeColor: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // ── Module 40: Language Toggle ──
-                _SettingsTile(
-                  icon: Icons.language_rounded,
-                  title: 'Language / زبان',
-                  color: const Color(0xFF0891B2),
-                  trailing: Consumer(
-                    builder: (context, ref, _) {
-                      final locale = ref.watch(localeProvider);
-                      return GestureDetector(
-                        onTap: () => ref.read(localeProvider.notifier).toggleLocale(),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                           decoration: BoxDecoration(
-                            color: AppColors.primarySurface,
-                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            locale.languageCode == 'en' ? 'English' : 'اردو',
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                            profile.isFscStudent ? 'FSC Student' : 'University Student',
+                            style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // ── Module 39: Parent Mode ──
-                _SettingsTile(
-                  icon: Icons.family_restroom_rounded,
-                  title: 'Parent Mode',
-                  color: const Color(0xFF8B5CF6),
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
-                  onTap: () => context.go(RouteNames.parentMode),
-                ),
-                const SizedBox(height: 8),
-
-                _SettingsTile(
-                  icon: Icons.edit_rounded,
-                  title: 'Edit Profile',
-                  color: AppColors.secondary,
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
-                  onTap: () => context.showSnackBar('Coming soon!'),
-                ),
-                const SizedBox(height: 8),
-                _SettingsTile(
-                  icon: Icons.refresh_rounded,
-                  title: 'Redo Onboarding',
-                  color: AppColors.accent,
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
-                  onTap: () async {
-                    await LocalStorageService.setOnboardingComplete(false);
-                    if (context.mounted) context.go(RouteNames.onboarding);
-                  },
-                ),
-                const SizedBox(height: 8),
-                _SettingsTile(
-                  icon: Icons.info_outline_rounded,
-                  title: 'About UniCompanion',
-                  color: AppColors.primary,
-                  trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
-                  onTap: () {
-                    showAboutDialog(
-                      context: context,
-                      applicationName: 'UniCompanion',
-                      applicationVersion: '1.0.0',
-                      applicationLegalese: 'FSC to Graduation — Your Academic Companion',
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton.icon(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Logout'),
-                          content: const Text('Are you sure you want to logout?'),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              style: TextButton.styleFrom(foregroundColor: AppColors.error),
-                              child: const Text('Logout'),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirm == true && context.mounted) {
-                        await ref.read(profileActionProvider.notifier).signOut();
-                        if (context.mounted) context.go(RouteNames.splash);
-                      }
-                    },
-                    icon: const Icon(Icons.logout_rounded, color: AppColors.error),
-                    label: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.error),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ],
                     ),
-                  ),
-                ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 450.ms)
+                      .slideY(begin: 0.08, end: 0, duration: 450.ms, curve: Curves.easeOutCubic),
 
-                const SizedBox(height: 32),
-              ],
-            ),
-          ),
+                  const SizedBox(height: 24),
+
+                  if (profile.isFscStudent && (profile.matricPercentage != null || profile.fscPercentage != null)) ...[
+                    _SectionTitle(title: 'Academic Info')
+                        .animate(delay: (d += 250).ms)
+                        .fadeIn(duration: 300.ms),
+                    const SizedBox(height: 10),
+                    if (profile.matricPercentage != null)
+                      _InfoTile(icon: Icons.school_outlined, label: 'Matric', value: '${profile.matricPercentage!.toStringAsFixed(1)}%', color: AppColors.secondary)
+                          .animate(delay: (d += step).ms)
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: 0.05, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                    if (profile.fscPercentage != null)
+                      _InfoTile(icon: Icons.menu_book_rounded, label: 'FSC', value: '${profile.fscPercentage!.toStringAsFixed(1)}%', color: AppColors.primary)
+                          .animate(delay: (d += step).ms)
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: 0.05, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                    if (profile.fscStream != null)
+                      _InfoTile(icon: Icons.category_rounded, label: 'Stream', value: profile.fscStream!.replaceAll('_', ' ').toUpperCase(), color: AppColors.accent)
+                          .animate(delay: (d += step).ms)
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: 0.05, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                    const SizedBox(height: 24),
+                  ],
+
+                  if (profile.isUniversityStudent) ...[
+                    _SectionTitle(title: 'University Info')
+                        .animate(delay: (d += 250).ms)
+                        .fadeIn(duration: 300.ms),
+                    const SizedBox(height: 10),
+                    if (profile.currentSemester != null)
+                      _InfoTile(icon: Icons.calendar_month_rounded, label: 'Semester', value: '${profile.currentSemester}', color: AppColors.primary)
+                          .animate(delay: (d += step).ms)
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: 0.05, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                    if (profile.enrollmentYear != null)
+                      _InfoTile(icon: Icons.date_range_rounded, label: 'Enrolled', value: '${profile.enrollmentYear}', color: AppColors.secondary)
+                          .animate(delay: (d += step).ms)
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: 0.05, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                    const SizedBox(height: 24),
+                  ],
+
+                  if (profile.careerInterests.isNotEmpty) ...[
+                    _SectionTitle(title: 'Career Interests')
+                        .animate(delay: (d += step).ms)
+                        .fadeIn(duration: 300.ms),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: profile.careerInterests.toList().asMap().entries.map((entry) => Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(color: AppColors.primarySurface, borderRadius: BorderRadius.circular(20)),
+                        child: Text(entry.value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppColors.primaryDark)),
+                      )
+                          .animate(delay: (d + entry.key * 40).ms)
+                          .fadeIn(duration: 250.ms)
+                          .slideX(begin: 0.08, end: 0, duration: 250.ms)
+                      ).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  _SectionTitle(title: 'Settings')
+                      .animate(delay: (d += 120).ms)
+                      .fadeIn(duration: 300.ms),
+                  const SizedBox(height: 10),
+
+                  _SettingsTile(
+                    icon: Icons.dark_mode_rounded,
+                    title: 'Dark Mode',
+                    color: AppColors.info,
+                    trailing: Switch(
+                      value: Theme.of(context).brightness == Brightness.dark,
+                      onChanged: (_) => ref.read(themeModeProvider.notifier).toggleTheme(),
+                      activeColor: AppColors.primary,
+                    ),
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                  const SizedBox(height: 8),
+                  _SettingsTile(
+                    icon: Icons.notifications_active_rounded,
+                    title: 'Deadline Reminders',
+                    color: AppColors.accent,
+                    trailing: Switch(
+                      value: ref.watch(remindersEnabledProvider),
+                      onChanged: (value) async {
+                        await ref.read(remindersEnabledProvider.notifier).setEnabled(value);
+                        if (!context.mounted) return;
+                        final nowEnabled = ref.read(remindersEnabledProvider);
+                        if (value && !nowEnabled) {
+                          context.showSnackBar('Notification permission denied — enable it in system settings.');
+                        } else {
+                          context.showSnackBar(nowEnabled ? 'Deadline reminders on' : 'Deadline reminders off');
+                        }
+                      },
+                      activeColor: AppColors.primary,
+                    ),
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                  const SizedBox(height: 8),
+
+                  _SettingsTile(
+                    icon: Icons.language_rounded,
+                    title: 'Language / زبان',
+                    color: const Color(0xFF0891B2),
+                    trailing: Consumer(
+                      builder: (context, ref, _) {
+                        final locale = ref.watch(localeProvider);
+                        return GestureDetector(
+                          onTap: () => ref.read(localeProvider.notifier).toggleLocale(),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.primarySurface,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              locale.languageCode == 'en' ? 'English' : 'اردو',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                  const SizedBox(height: 8),
+
+                  _SettingsTile(
+                    icon: Icons.family_restroom_rounded,
+                    title: 'Parent Mode',
+                    color: const Color(0xFF8B5CF6),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
+                    onTap: () => context.go(RouteNames.parentMode),
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                  const SizedBox(height: 8),
+
+                  _SettingsTile(
+                    icon: Icons.edit_rounded,
+                    title: 'Edit Profile',
+                    color: AppColors.secondary,
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
+                    onTap: () => context.showSnackBar('Coming soon!'),
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                  const SizedBox(height: 8),
+                  _SettingsTile(
+                    icon: Icons.refresh_rounded,
+                    title: 'Redo Onboarding',
+                    color: AppColors.accent,
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
+                    onTap: () async {
+                      await LocalStorageService.setOnboardingComplete(false);
+                      if (context.mounted) context.go(RouteNames.onboarding);
+                    },
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+                  const SizedBox(height: 8),
+                  _SettingsTile(
+                    icon: Icons.info_outline_rounded,
+                    title: 'About UniCompanion',
+                    color: AppColors.primary,
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.textTertiaryLight),
+                    onTap: () {
+                      showAboutDialog(
+                        context: context,
+                        applicationName: 'UniCompanion',
+                        applicationVersion: '1.0.0',
+                        applicationLegalese: 'FSC to Graduation — Your Academic Companion',
+                      );
+                    },
+                  )
+                      .animate(delay: (d += step).ms)
+                      .fadeIn(duration: 300.ms)
+                      .slideX(begin: 0.04, end: 0, duration: 300.ms, curve: Curves.easeOut),
+
+                  const SizedBox(height: 24),
+
+                  // ── Logout button ──
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Logout'),
+                            content: const Text('Are you sure you want to logout?'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                style: TextButton.styleFrom(foregroundColor: AppColors.error),
+                                child: const Text('Logout'),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true && context.mounted) {
+                          await ref.read(profileActionProvider.notifier).signOut();
+                          if (context.mounted) context.go(RouteNames.splash);
+                        }
+                      },
+                      icon: const Icon(Icons.logout_rounded, color: AppColors.error),
+                      label: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.error),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                    ),
+                  )
+                      .animate(delay: (d += 80).ms)
+                      .fadeIn(duration: 350.ms),
+
+                  const SizedBox(height: 32),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );

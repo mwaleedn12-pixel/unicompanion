@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -9,6 +10,9 @@ class ToolsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int d = 0; // delay counter (ms)
+    const step = 60; // stagger step per card
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -17,12 +21,20 @@ class ToolsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              Text('Tools', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800)),
+              Text('Tools', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800))
+                  .animate()
+                  .fadeIn(duration: 400.ms)
+                  .slideX(begin: -0.05, end: 0, duration: 400.ms, curve: Curves.easeOut),
               const SizedBox(height: 4),
-              Text('Academic calculators & utilities', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight)),
+              Text('Academic calculators & utilities', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight))
+                  .animate(delay: 80.ms)
+                  .fadeIn(duration: 300.ms),
               const SizedBox(height: 24),
 
-              Text('Calculators', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+              // ── Section: Calculators ──
+              Text('Calculators', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+                  .animate(delay: (d += 150).ms)
+                  .fadeIn(duration: 300.ms),
               const SizedBox(height: 12),
 
               _ToolCard(
@@ -31,7 +43,10 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Calculate your semester GPA with any grading system',
                 gradient: [AppColors.primary, AppColors.primaryLight],
                 onTap: () => context.go('${RouteNames.tools}/gpa'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
               _ToolCard(
                 icon: Icons.auto_graph_rounded,
@@ -39,7 +54,10 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Calculate cumulative GPA across all semesters',
                 gradient: [AppColors.secondary, AppColors.secondaryLight],
                 onTap: () => context.go('${RouteNames.tools}/cgpa'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
               _ToolCard(
                 icon: Icons.track_changes_rounded,
@@ -47,7 +65,10 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Find out what GPA you need this semester',
                 gradient: [AppColors.info, const Color(0xFF93C5FD)],
                 onTap: () => context.go('${RouteNames.tools}/target-gpa'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
               _ToolCard(
                 icon: Icons.fact_check_rounded,
@@ -55,7 +76,10 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Track attendance & know how many classes you can miss',
                 gradient: [AppColors.accent, AppColors.accentLight],
                 onTap: () => context.go('${RouteNames.tools}/attendance'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
               _ToolCard(
                 icon: Icons.grade_rounded,
@@ -63,10 +87,17 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Know your grade before the final exam',
                 gradient: [const Color(0xFFEC4899), const Color(0xFFF472B6)],
                 onTap: () => context.go('${RouteNames.tools}/grade'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
               const SizedBox(height: 24),
-              Text('Admission Tools', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+
+              // ── Section: Admission Tools ──
+              Text('Admission Tools', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 300.ms),
               const SizedBox(height: 12),
 
               _ToolCard(
@@ -75,7 +106,10 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Calculate your aggregate for any university',
                 gradient: [const Color(0xFF8B5CF6), const Color(0xFFA78BFA)],
                 onTap: () => context.go('${RouteNames.tools}/merit'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
               _ToolCard(
                 icon: Icons.verified_rounded,
@@ -83,7 +117,10 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Check if you meet requirements for a program',
                 gradient: [AppColors.success, const Color(0xFF86EFAC)],
                 onTap: () => context.go('${RouteNames.tools}/eligibility'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
               _ToolCard(
                 icon: Icons.compare_arrows_rounded,
@@ -91,30 +128,41 @@ class ToolsScreen extends StatelessWidget {
                 subtitle: 'Side-by-side university comparison',
                 gradient: [const Color(0xFF6366F1), const Color(0xFF818CF8)],
                 onTap: () => context.go('${RouteNames.tools}/compare'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
               const SizedBox(height: 24),
-              Text('Test & Match', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+
+              // ── Section: Test & Match ──
+              Text('Test & Match', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 300.ms),
               const SizedBox(height: 12),
 
-              // Module 32 — Entry Test Prep
               _ToolCard(
                 icon: Icons.quiz_rounded,
                 title: 'Entry Test Prep',
                 subtitle: 'Practice MCQs for ECAT, MDCAT, NET & more with timer',
                 gradient: [const Color(0xFFF59E0B), const Color(0xFFFBBF24)],
                 onTap: () => context.go('${RouteNames.tools}/test-prep'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
 
-              // Module 36 — University Match
               _ToolCard(
                 icon: Icons.hub_rounded,
                 title: 'University Match',
                 subtitle: 'Answer 5 questions and find your best-fit universities',
                 gradient: [const Color(0xFF14B8A6), const Color(0xFF5EEAD4)],
                 onTap: () => context.go('${RouteNames.tools}/match'),
-              ),
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
               const SizedBox(height: 32),
             ],

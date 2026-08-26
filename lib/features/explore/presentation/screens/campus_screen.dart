@@ -44,6 +44,40 @@ class CampusScreen extends ConsumerWidget {
 
             const SizedBox(height: 12),
 
+            // ── Search Bar ──
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search by university (e.g. NUST, PIEAS)',
+                  hintStyle: TextStyle(fontSize: 13, color: AppColors.textTertiaryLight),
+                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.surface,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.dividerLight),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.dividerLight),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                  ),
+                  isDense: true,
+                ),
+                style: const TextStyle(fontSize: 14),
+                onChanged: (value) {
+                  ref.read(campusSearchProvider.notifier).state = value.trim();
+                },
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
             // ── City Filter ──
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,

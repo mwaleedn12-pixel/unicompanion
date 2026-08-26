@@ -134,13 +134,15 @@ final universityProgramsProvider =
 // ══════════════════════════════════════════════════
 
 final campusCityFilterProvider = StateProvider<String>((ref) => 'all');
+final campusSearchProvider = StateProvider<String>((ref) => '');
 
 final campusesProvider =
     StateNotifierProvider<CampusesNotifier, UiState<List<CampusModel>>>((ref) {
   final repository = ref.watch(exploreRepositoryProvider);
   final city = ref.watch(campusCityFilterProvider);
+  final search = ref.watch(campusSearchProvider);
   final notifier = CampusesNotifier(repository);
-  notifier.loadCampuses(city: city);
+  notifier.loadCampuses(city: city, search: search);
   return notifier;
 });
 
@@ -149,9 +151,12 @@ class CampusesNotifier extends StateNotifier<UiState<List<CampusModel>>> {
 
   CampusesNotifier(this._repository) : super(const UiState.initial());
 
-  Future<void> loadCampuses({String city = 'all'}) async {
+  Future<void> loadCampuses({String city = 'all', String search = ''}) async {
     state = const UiState.loading();
-    final result = await _repository.getCampuses(city: city == 'all' ? null : city);
+    final result = await _repository.getCampuses(
+      city: city == 'all' ? null : city,
+      search: search.isEmpty ? null : search,
+    );
     result.when(
       success: (data) => state = UiState.success(data),
       failure: (msg) => state = UiState.error(msg),

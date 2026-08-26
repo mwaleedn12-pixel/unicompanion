@@ -24,6 +24,7 @@ abstract class ExploreRepository {
   Future<Result<List<CampusModel>>> getCampuses({
     String? universityId,
     String? city,
+    String? search,
   });
   Future<Result<List<CampusModel>>> getCampusesByUniversity(String universityId);
   Future<Result<List<String>>> getCampusCities();

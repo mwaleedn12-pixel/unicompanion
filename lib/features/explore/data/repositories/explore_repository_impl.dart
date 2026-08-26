@@ -79,11 +79,13 @@ class ExploreRepositoryImpl implements ExploreRepository {
   Future<Result<List<CampusModel>>> getCampuses({
     String? universityId,
     String? city,
+    String? search,
   }) async {
     try {
       final data = await _datasource.getCampuses(
         universityId: universityId,
         city: city,
+        search: search,
       );
       final campuses = data.map((e) => CampusModel.fromJson(e)).toList();
       return Result.success(campuses);

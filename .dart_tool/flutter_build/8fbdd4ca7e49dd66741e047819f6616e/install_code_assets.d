@@ -1,0 +1,1 @@
+ C:\\Users\\NewMoon\\Desktop\\University-finder\\unicompanion\\.dart_tool\\flutter_build\\8fbdd4ca7e49dd66741e047819f6616e\\native_assets.json: 

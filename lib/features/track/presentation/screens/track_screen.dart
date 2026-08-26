@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -18,7 +19,6 @@ class TrackScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ── FIX: Read user type from Supabase profile, not LocalStorageService ──
     final profileState = ref.watch(userProfileProvider);
 
     return Scaffold(
@@ -39,12 +39,17 @@ class TrackScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  Text('Track', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800)),
+                  Text('Track', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800))
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .slideX(begin: -0.05, end: 0, duration: 400.ms, curve: Curves.easeOut),
                   const SizedBox(height: 4),
                   Text(
                     isFsc ? 'Track your applications & deadlines' : 'Track your courses & academics',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryLight),
-                  ),
+                  )
+                      .animate(delay: 80.ms)
+                      .fadeIn(duration: 300.ms),
                   const SizedBox(height: 24),
 
                   if (isFsc) ..._fscTrackContent(context, ref),
@@ -70,7 +75,7 @@ class TrackScreen extends ConsumerWidget {
     final acceptedCount = applications.where((a) => a.isAccepted).length;
 
     return [
-      // Application Stats
+      // ── Application Stats hero ──
       GestureDetector(
         onTap: () => context.push('/track/applications'),
         child: Container(
@@ -100,78 +105,91 @@ class TrackScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+      )
+          .animate(delay: 150.ms)
+          .fadeIn(duration: 450.ms)
+          .slideY(begin: 0.08, end: 0, duration: 450.ms, curve: Curves.easeOutCubic),
 
       const SizedBox(height: 24),
 
-      Text('Upcoming Deadlines', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      // ── Upcoming Deadlines ──
+      Text('Upcoming Deadlines', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+          .animate(delay: 350.ms)
+          .fadeIn(duration: 300.ms),
       const SizedBox(height: 14),
 
-      if (upcomingDeadlines.isEmpty)
-        _EmptyStateCard(
-          icon: Icons.calendar_today_rounded,
-          title: 'No Deadlines Yet',
-          subtitle: 'Shortlist universities from Explore tab to see their deadlines here',
-          color: AppColors.accent,
-        )
-      else
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
-          ),
-          child: Column(
-            children: [
-              ...upcomingDeadlines.take(4).map((a) => ListTile(
-                    dense: true,
-                    leading: Icon(Icons.event_rounded, color: a.isDeadlineSoon ? AppColors.warning : AppColors.accent, size: 20),
-                    title: Text(a.universityName, style: Theme.of(context).textTheme.bodyMedium),
-                    trailing: Text(
-                      DateFormat('MMM d').format(a.deadline!),
-                      style: TextStyle(fontWeight: FontWeight.w600, color: a.isDeadlineSoon ? AppColors.warning : AppColors.textSecondaryLight, fontSize: 12),
-                    ),
-                  )),
-              TextButton(onPressed: () => context.push('/track/applications'), child: const Text('View All Applications')),
-            ],
-          ),
-        ),
+      (upcomingDeadlines.isEmpty
+              ? _EmptyStateCard(
+                  icon: Icons.calendar_today_rounded,
+                  title: 'No Deadlines Yet',
+                  subtitle: 'Shortlist universities from Explore tab to see their deadlines here',
+                  color: AppColors.accent,
+                ) as Widget
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+                  ),
+                  child: Column(
+                    children: [
+                      ...upcomingDeadlines.take(4).map((a) => ListTile(
+                            dense: true,
+                            leading: Icon(Icons.event_rounded, color: a.isDeadlineSoon ? AppColors.warning : AppColors.accent, size: 20),
+                            title: Text(a.universityName, style: Theme.of(context).textTheme.bodyMedium),
+                            trailing: Text(
+                              DateFormat('MMM d').format(a.deadline!),
+                              style: TextStyle(fontWeight: FontWeight.w600, color: a.isDeadlineSoon ? AppColors.warning : AppColors.textSecondaryLight, fontSize: 12),
+                            ),
+                          )),
+                      TextButton(onPressed: () => context.push('/track/applications'), child: const Text('View All Applications')),
+                    ],
+                  ),
+                ))
+          .animate(delay: 420.ms)
+          .fadeIn(duration: 350.ms)
+          .slideY(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
       const SizedBox(height: 16),
 
-      Text('My Shortlist', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      // ── My Shortlist ──
+      Text('My Shortlist', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+          .animate(delay: 520.ms)
+          .fadeIn(duration: 300.ms),
       const SizedBox(height: 14),
 
-      if (shortlist.isEmpty)
-        GestureDetector(
-          onTap: () => context.push('/track/shortlist'),
-          child: _EmptyStateCard(
-            icon: Icons.bookmark_outline_rounded,
-            title: 'No Universities Shortlisted',
-            subtitle: 'Go to Explore and save universities you\'re interested in',
-            color: AppColors.primary,
-            actionLabel: 'Add Now',
-          ),
-        )
-      else
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
-          ),
-          child: Column(
-            children: [
-              ...shortlist.take(4).map((s) => ListTile(
-                    dense: true,
-                    leading: Icon(Icons.bookmark_rounded, color: s.universityType == 'public' ? AppColors.primary : AppColors.secondary, size: 20),
-                    title: Text(s.universityName, style: Theme.of(context).textTheme.bodyMedium),
-                    trailing: s.universityRanking != null ? Text('#${s.universityRanking}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.textSecondaryLight)) : null,
-                  )),
-              TextButton(onPressed: () => context.push('/track/shortlist'), child: const Text('View Full Shortlist')),
-            ],
-          ),
-        ),
+      (shortlist.isEmpty
+              ? GestureDetector(
+                  onTap: () => context.push('/track/shortlist'),
+                  child: _EmptyStateCard(
+                    icon: Icons.bookmark_outline_rounded,
+                    title: 'No Universities Shortlisted',
+                    subtitle: 'Go to Explore and save universities you\'re interested in',
+                    color: AppColors.primary,
+                    actionLabel: 'Add Now',
+                  ),
+                ) as Widget
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+                  ),
+                  child: Column(
+                    children: [
+                      ...shortlist.take(4).map((s) => ListTile(
+                            dense: true,
+                            leading: Icon(Icons.bookmark_rounded, color: s.universityType == 'public' ? AppColors.primary : AppColors.secondary, size: 20),
+                            title: Text(s.universityName, style: Theme.of(context).textTheme.bodyMedium),
+                            trailing: s.universityRanking != null ? Text('#${s.universityRanking}', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: AppColors.textSecondaryLight)) : null,
+                          )),
+                      TextButton(onPressed: () => context.push('/track/shortlist'), child: const Text('View Full Shortlist')),
+                    ],
+                  ),
+                ))
+          .animate(delay: 590.ms)
+          .fadeIn(duration: 350.ms)
+          .slideY(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
       const SizedBox(height: 32),
     ];
@@ -192,7 +210,7 @@ class TrackScreen extends ConsumerWidget {
     }
 
     return [
-      // Semester Overview
+      // ── Semester Overview hero ──
       GestureDetector(
         onTap: () => context.push('/track/semesters'),
         child: Container(
@@ -222,11 +240,14 @@ class TrackScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+      )
+          .animate(delay: 150.ms)
+          .fadeIn(duration: 450.ms)
+          .slideY(begin: 0.08, end: 0, duration: 450.ms, curve: Curves.easeOutCubic),
 
       const SizedBox(height: 12),
 
-      // Academic Dashboard link
+      // ── Academic Dashboard link ──
       GestureDetector(
         onTap: () => context.push('/track/dashboard'),
         child: Container(
@@ -252,93 +273,112 @@ class TrackScreen extends ConsumerWidget {
             ],
           ),
         ),
-      ),
+      )
+          .animate(delay: 300.ms)
+          .fadeIn(duration: 350.ms)
+          .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
       const SizedBox(height: 24),
 
-      Text('Current Courses', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      // ── Current Courses ──
+      Text('Current Courses', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+          .animate(delay: 400.ms)
+          .fadeIn(duration: 300.ms),
       const SizedBox(height: 14),
 
-      if (currentSemester == null || currentSemester.courses.isEmpty)
-        GestureDetector(
-          onTap: () => context.push('/track/semesters'),
-          child: _EmptyStateCard(
-            icon: Icons.book_outlined,
-            title: 'No Courses Added',
-            subtitle: 'Add your semester courses to track grades and attendance',
-            color: AppColors.primary,
-            actionLabel: 'Add Now',
-          ),
-        )
-      else
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
-          ),
-          child: Column(
-            children: [
-              ...currentSemester.courses.take(4).map((c) => ListTile(
-                    dense: true,
-                    leading: Icon(Icons.book_rounded, color: c.grade != null ? AppColors.gpaColor(c.gradePoints ?? 0) : AppColors.textTertiaryLight, size: 20),
-                    title: Text(c.name, style: Theme.of(context).textTheme.bodyMedium),
-                    trailing: Text(c.grade ?? '--', style: TextStyle(fontWeight: FontWeight.w700, color: c.grade != null ? AppColors.gpaColor(c.gradePoints ?? 0) : AppColors.textTertiaryLight)),
-                  )),
-              TextButton(onPressed: () => context.push('/track/semesters'), child: const Text('Manage Semesters & Courses')),
-            ],
-          ),
-        ),
+      (currentSemester == null || currentSemester.courses.isEmpty
+              ? GestureDetector(
+                  onTap: () => context.push('/track/semesters'),
+                  child: _EmptyStateCard(
+                    icon: Icons.book_outlined,
+                    title: 'No Courses Added',
+                    subtitle: 'Add your semester courses to track grades and attendance',
+                    color: AppColors.primary,
+                    actionLabel: 'Add Now',
+                  ),
+                ) as Widget
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+                  ),
+                  child: Column(
+                    children: [
+                      ...currentSemester.courses.take(4).map((c) => ListTile(
+                            dense: true,
+                            leading: Icon(Icons.book_rounded, color: c.grade != null ? AppColors.gpaColor(c.gradePoints ?? 0) : AppColors.textTertiaryLight, size: 20),
+                            title: Text(c.name, style: Theme.of(context).textTheme.bodyMedium),
+                            trailing: Text(c.grade ?? '--', style: TextStyle(fontWeight: FontWeight.w700, color: c.grade != null ? AppColors.gpaColor(c.gradePoints ?? 0) : AppColors.textTertiaryLight)),
+                          )),
+                      TextButton(onPressed: () => context.push('/track/semesters'), child: const Text('Manage Semesters & Courses')),
+                    ],
+                  ),
+                ))
+          .animate(delay: 470.ms)
+          .fadeIn(duration: 350.ms)
+          .slideY(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
       const SizedBox(height: 16),
 
-      Text('Upcoming Due', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      // ── Upcoming Due ──
+      Text('Upcoming Due', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+          .animate(delay: 560.ms)
+          .fadeIn(duration: 300.ms),
       const SizedBox(height: 14),
 
-      if (upcomingAssignments.isEmpty)
-        GestureDetector(
-          onTap: () => context.push('/track/assignments'),
-          child: _EmptyStateCard(
-            icon: Icons.assignment_outlined,
-            title: 'No Assignments Yet',
-            subtitle: 'Add assignments, quizzes and exams to keep track of due dates',
-            color: AppColors.accent,
-            actionLabel: 'Add Now',
-          ),
-        )
-      else
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
-          ),
-          child: Column(
-            children: [
-              ...upcomingAssignments.take(4).map((a) => ListTile(
-                    dense: true,
-                    leading: Icon(
-                      a.type == 'exam' ? Icons.description_rounded : (a.type == 'quiz' ? Icons.quiz_rounded : Icons.assignment_rounded),
-                      color: a.isOverdue ? AppColors.error : AppColors.accent,
-                      size: 20,
-                    ),
-                    title: Text(a.title, style: Theme.of(context).textTheme.bodyMedium),
-                    trailing: Text(
-                      DateFormat('MMM d').format(a.dueDate),
-                      style: TextStyle(fontWeight: FontWeight.w600, color: a.isOverdue ? AppColors.error : AppColors.textSecondaryLight, fontSize: 12),
-                    ),
-                  )),
-              TextButton(onPressed: () => context.push('/track/assignments'), child: const Text('View All Assignments')),
-            ],
-          ),
-        ),
+      (upcomingAssignments.isEmpty
+              ? GestureDetector(
+                  onTap: () => context.push('/track/assignments'),
+                  child: _EmptyStateCard(
+                    icon: Icons.assignment_outlined,
+                    title: 'No Assignments Yet',
+                    subtitle: 'Add assignments, quizzes and exams to keep track of due dates',
+                    color: AppColors.accent,
+                    actionLabel: 'Add Now',
+                  ),
+                ) as Widget
+              : Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)),
+                  ),
+                  child: Column(
+                    children: [
+                      ...upcomingAssignments.take(4).map((a) => ListTile(
+                            dense: true,
+                            leading: Icon(
+                              a.type == 'exam' ? Icons.description_rounded : (a.type == 'quiz' ? Icons.quiz_rounded : Icons.assignment_rounded),
+                              color: a.isOverdue ? AppColors.error : AppColors.accent,
+                              size: 20,
+                            ),
+                            title: Text(a.title, style: Theme.of(context).textTheme.bodyMedium),
+                            trailing: Text(
+                              DateFormat('MMM d').format(a.dueDate),
+                              style: TextStyle(fontWeight: FontWeight.w600, color: a.isOverdue ? AppColors.error : AppColors.textSecondaryLight, fontSize: 12),
+                            ),
+                          )),
+                      TextButton(onPressed: () => context.push('/track/assignments'), child: const Text('View All Assignments')),
+                    ],
+                  ),
+                ))
+          .animate(delay: 630.ms)
+          .fadeIn(duration: 350.ms)
+          .slideY(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
       const SizedBox(height: 16),
 
-      Text('Degree Progress', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+      // ── Degree Progress ──
+      Text('Degree Progress', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700))
+          .animate(delay: 720.ms)
+          .fadeIn(duration: 300.ms),
       const SizedBox(height: 14),
 
-      const DegreeProgressCard(),
+      const DegreeProgressCard()
+          .animate(delay: 780.ms)
+          .fadeIn(duration: 350.ms)
+          .slideY(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
       const SizedBox(height: 32),
     ];
