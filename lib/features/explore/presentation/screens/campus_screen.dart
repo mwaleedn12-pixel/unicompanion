@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/app_haptics.dart';
 import '../../../../core/widgets/common_widgets.dart';
+import '../../../../core/widgets/skeleton_loaders.dart';
 import '../../data/models/campus_model.dart';
 import '../providers/explore_provider.dart';
 
@@ -40,7 +43,10 @@ class CampusScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 350.ms)
+                .slideX(begin: -0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 12),
 
@@ -74,11 +80,14 @@ class CampusScreen extends ConsumerWidget {
                   ref.read(campusSearchProvider.notifier).state = value.trim();
                 },
               ),
-            ),
+            )
+                .animate(delay: 100.ms)
+                .fadeIn(duration: 300.ms)
+                .slideY(begin: 0.05, end: 0, duration: 300.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 12),
 
-            // ── City Filter ──
+            // ── City Filter — haptic on chip tap ──
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -87,7 +96,10 @@ class CampusScreen extends ConsumerWidget {
                   _CityChip(
                     label: 'All Cities',
                     selected: cityFilter == 'all',
-                    onTap: () => ref.read(campusCityFilterProvider.notifier).state = 'all',
+                    onTap: () {
+                      AppHaptics.selection();
+                      ref.read(campusCityFilterProvider.notifier).state = 'all';
+                    },
                   ),
                   const SizedBox(width: 8),
                   ...citiesAsync.when(
@@ -96,7 +108,10 @@ class CampusScreen extends ConsumerWidget {
                       child: _CityChip(
                         label: city,
                         selected: cityFilter == city,
-                        onTap: () => ref.read(campusCityFilterProvider.notifier).state = city,
+                        onTap: () {
+                          AppHaptics.selection();
+                          ref.read(campusCityFilterProvider.notifier).state = city;
+                        },
                       ),
                     )),
                     loading: () => [const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))],
@@ -104,7 +119,10 @@ class CampusScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            ),
+            )
+                .animate(delay: 200.ms)
+                .fadeIn(duration: 300.ms)
+                .slideX(begin: 0.06, end: 0, duration: 300.ms, curve: Curves.easeOut),
 
             const SizedBox(height: 8),
 
@@ -124,11 +142,11 @@ class CampusScreen extends ConsumerWidget {
 
             const SizedBox(height: 8),
 
-            // ── List ──
+            // ── List — skeleton + pull-to-refresh ──
             Expanded(
               child: campusesState.when(
-                initial: () => const AppLoadingIndicator(),
-                loading: () => const AppLoadingIndicator(),
+                initial: () => const CampusListSkeleton(),
+                loading: () => const CampusListSkeleton(),
                 error: (msg) => AppErrorView(
                   message: msg,
                   onRetry: () => ref.invalidate(campusesProvider),
@@ -138,13 +156,24 @@ class CampusScreen extends ConsumerWidget {
                     return const AppEmptyView(
                       icon: Icons.location_city_rounded,
                       title: 'No campuses found',
-                      subtitle: 'Try a different city filter',
+                      subtitle: 'Try a different city filter or search',
                     );
                   }
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: campuses.length,
-                    itemBuilder: (context, i) => _CampusCard(campus: campuses[i]),
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      AppHaptics.light();
+                      ref.invalidate(campusesProvider);
+                      await Future.delayed(const Duration(milliseconds: 500));
+                    },
+                    color: AppColors.primary,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: campuses.length,
+                      itemBuilder: (context, i) => _CampusCard(campus: campuses[i])
+                          .animate()
+                          .fadeIn(duration: 300.ms, delay: (i.clamp(0, 6) * 50).ms)
+                          .slideY(begin: 0.04, end: 0, duration: 300.ms, delay: (i.clamp(0, 6) * 50).ms, curve: Curves.easeOut),
+                    ),
                   );
                 },
               ),
@@ -201,7 +230,6 @@ class _CampusCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with gradient
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -210,52 +238,35 @@ class _CampusCard extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 48, height: 48,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(
-                    campus.isMainCampus ? Icons.account_balance_rounded : Icons.location_city_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
+                  child: Icon(campus.isMainCampus ? Icons.account_balance_rounded : Icons.location_city_rounded, color: Colors.white, size: 22),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        campus.name,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
-                      ),
+                      Text(campus.name, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
                       Row(
                         children: [
                           if (campus.universityShortName != null) ...[
-                            Text(
-                              campus.universityShortName!,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600, color: color),
-                            ),
+                            Text(campus.universityShortName!, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600, color: color)),
                             const Text(' · ', style: TextStyle(color: AppColors.textTertiaryLight)),
                           ],
                           Icon(Icons.location_on_rounded, size: 13, color: AppColors.textTertiaryLight),
                           const SizedBox(width: 2),
-                          Text(
-                            campus.city,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryLight),
-                          ),
+                          Text(campus.city, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondaryLight)),
                         ],
                       ),
                     ],
@@ -264,26 +275,17 @@ class _CampusCard extends StatelessWidget {
                 if (campus.isMainCampus)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      'Main',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
-                    ),
+                    decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+                    child: const Text('Main', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
                   ),
               ],
             ),
           ),
-
-          // Body
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Stats row
                 Row(
                   children: [
                     if (campus.studentCount != null)
@@ -294,49 +296,26 @@ class _CampusCard extends StatelessWidget {
                       _MiniStat(icon: Icons.calendar_today_rounded, label: 'Est. ${campus.establishedYear}', color: AppColors.accent),
                   ],
                 ),
-
                 if (campus.description != null) ...[
                   const SizedBox(height: 10),
-                  Text(
-                    campus.description!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.5, color: AppColors.textSecondaryLight),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(campus.description!, style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.5, color: AppColors.textSecondaryLight), maxLines: 3, overflow: TextOverflow.ellipsis),
                 ],
-
                 if (campus.address != null) ...[
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       const Icon(Icons.pin_drop_rounded, size: 13, color: AppColors.textTertiaryLight),
                       const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          campus.address!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiaryLight),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      Expanded(child: Text(campus.address!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textTertiaryLight), maxLines: 1, overflow: TextOverflow.ellipsis)),
                     ],
                   ),
                 ],
-
                 const SizedBox(height: 12),
-
-                // Facilities grid
-                Text(
-                  'Facilities',
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
-                ),
+                Text('Facilities', style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 8),
                 Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: campus.facilities
-                      .map((f) => _FacilityBadge(facility: f))
-                      .toList(),
+                  spacing: 6, runSpacing: 6,
+                  children: campus.facilities.map((f) => _FacilityBadge(facility: f)).toList(),
                 ),
               ],
             ),
@@ -357,10 +336,7 @@ class _MiniStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -391,10 +367,7 @@ class _FacilityBadge extends StatelessWidget {
         children: [
           Text(facility.emoji, style: const TextStyle(fontSize: 13)),
           const SizedBox(width: 4),
-          Text(
-            facility.label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
-          ),
+          Text(facility.label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success)),
         ],
       ),
     );

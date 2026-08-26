@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import '../utils/app_haptics.dart';
 
 class AppLoadingIndicator extends StatelessWidget {
   final String? message;
@@ -42,7 +43,10 @@ class AppErrorView extends StatelessWidget {
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.xl),
               OutlinedButton.icon(
-                onPressed: onRetry,
+                onPressed: () {
+                  AppHaptics.tap();
+                  onRetry!();
+                },
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Retry'),
               ),
@@ -100,7 +104,12 @@ class PrimaryButton extends StatelessWidget {
       width: double.infinity,
       height: 52,
       child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
+        onPressed: isLoading
+            ? null
+            : () {
+                AppHaptics.tap();
+                onPressed?.call();
+              },
         child: isLoading
             ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
             : Row(

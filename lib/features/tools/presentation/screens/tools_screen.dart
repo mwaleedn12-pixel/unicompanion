@@ -4,14 +4,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/routing/route_names.dart';
+import '../../../../core/utils/app_haptics.dart';
 
 class ToolsScreen extends StatelessWidget {
   const ToolsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    int d = 0; // delay counter (ms)
-    const step = 60; // stagger step per card
+    int d = 0;
+    const step = 60;
 
     return Scaffold(
       body: SafeArea(
@@ -42,7 +43,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'GPA Calculator',
                 subtitle: 'Calculate your semester GPA with any grading system',
                 gradient: [AppColors.primary, AppColors.primaryLight],
-                onTap: () => context.go('${RouteNames.tools}/gpa'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/gpa'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -53,7 +54,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'CGPA Calculator',
                 subtitle: 'Calculate cumulative GPA across all semesters',
                 gradient: [AppColors.secondary, AppColors.secondaryLight],
-                onTap: () => context.go('${RouteNames.tools}/cgpa'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/cgpa'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -64,7 +65,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Target GPA',
                 subtitle: 'Find out what GPA you need this semester',
                 gradient: [AppColors.info, const Color(0xFF93C5FD)],
-                onTap: () => context.go('${RouteNames.tools}/target-gpa'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/target-gpa'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -75,7 +76,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Attendance Calculator',
                 subtitle: 'Track attendance & know how many classes you can miss',
                 gradient: [AppColors.accent, AppColors.accentLight],
-                onTap: () => context.go('${RouteNames.tools}/attendance'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/attendance'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -86,7 +87,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Grade Calculator',
                 subtitle: 'Know your grade before the final exam',
                 gradient: [const Color(0xFFEC4899), const Color(0xFFF472B6)],
-                onTap: () => context.go('${RouteNames.tools}/grade'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/grade'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -105,7 +106,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Merit Calculator',
                 subtitle: 'Calculate your aggregate for any university',
                 gradient: [const Color(0xFF8B5CF6), const Color(0xFFA78BFA)],
-                onTap: () => context.go('${RouteNames.tools}/merit'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/merit'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -116,7 +117,7 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Eligibility Checker',
                 subtitle: 'Check if you meet requirements for a program',
                 gradient: [AppColors.success, const Color(0xFF86EFAC)],
-                onTap: () => context.go('${RouteNames.tools}/eligibility'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/eligibility'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -127,7 +128,33 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Compare Universities',
                 subtitle: 'Side-by-side university comparison',
                 gradient: [const Color(0xFF6366F1), const Color(0xFF818CF8)],
-                onTap: () => context.go('${RouteNames.tools}/compare'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/compare'); },
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
+              const SizedBox(height: 12),
+
+              // ── #3 — Fee Comparison (NEW) ──
+              _ToolCard(
+                icon: Icons.bar_chart_rounded,
+                title: 'Fee Comparison',
+                subtitle: 'Compare fees across universities visually',
+                gradient: [const Color(0xFF0891B2), const Color(0xFF67E8F9)],
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/fee-compare'); },
+              )
+                  .animate(delay: (d += step).ms)
+                  .fadeIn(duration: 350.ms)
+                  .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
+              const SizedBox(height: 12),
+
+              // ── #5 — Admission Probability (NEW) ──
+              _ToolCard(
+                icon: Icons.trending_up_rounded,
+                title: 'Admission Probability',
+                subtitle: 'Estimate your chances based on merit formula',
+                gradient: [const Color(0xFFDC2626), const Color(0xFFF87171)],
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/probability'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
@@ -146,19 +173,18 @@ class ToolsScreen extends StatelessWidget {
                 title: 'Entry Test Prep',
                 subtitle: 'Practice MCQs for ECAT, MDCAT, NET & more with timer',
                 gradient: [const Color(0xFFF59E0B), const Color(0xFFFBBF24)],
-                onTap: () => context.go('${RouteNames.tools}/test-prep'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/test-prep'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)
                   .slideX(begin: 0.05, end: 0, duration: 350.ms, curve: Curves.easeOut),
               const SizedBox(height: 12),
-
               _ToolCard(
                 icon: Icons.hub_rounded,
                 title: 'University Match',
                 subtitle: 'Answer 5 questions and find your best-fit universities',
                 gradient: [const Color(0xFF14B8A6), const Color(0xFF5EEAD4)],
-                onTap: () => context.go('${RouteNames.tools}/match'),
+                onTap: () { AppHaptics.light(); context.go('${RouteNames.tools}/match'); },
               )
                   .animate(delay: (d += step).ms)
                   .fadeIn(duration: 350.ms)

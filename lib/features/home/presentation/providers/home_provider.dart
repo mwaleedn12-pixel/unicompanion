@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/services/supabase_service.dart';
+import '../../../../core/services/smart_notification_service.dart';
 import '../../../../core/utils/ui_state.dart';
 
 class UserProfile {
@@ -109,6 +110,9 @@ class UserProfileNotifier extends StateNotifier<UiState<UserProfile>> {
       } else {
         state = UiState.success(UserProfile.fromJson(data));
       }
+
+      // #4 — Sync smart notifications after profile loads successfully
+      SmartNotificationService.instance.syncSmartNotifications();
     } catch (e) {
       state = UiState.error('Failed to load profile: $e');
     }

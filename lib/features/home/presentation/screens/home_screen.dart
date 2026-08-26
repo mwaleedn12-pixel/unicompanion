@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/widgets/skeleton_loaders.dart';
 
 import '../../../../core/extensions/context_extensions.dart';
 import '../../../../core/routing/route_names.dart';
@@ -21,7 +22,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       body: profileState.when(
         initial: () => const AppLoadingIndicator(),
-        loading: () => const AppLoadingIndicator(message: 'Loading your dashboard...'),
+        loading: () => const _DashboardSkeleton(),
         error: (msg) => AppErrorView(
           message: msg,
           onRetry: () => ref.read(userProfileProvider.notifier).loadProfile(),
@@ -520,6 +521,43 @@ class _UniHomeView extends StatelessWidget {
 
             const SizedBox(height: 32),
           ],
+        ),
+      ),
+    );
+  }
+}
+class _DashboardSkeleton extends StatelessWidget {
+  const _DashboardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: ShimmerWrap(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              ShimmerBox(width: 120, height: 14),
+              const SizedBox(height: 8),
+              ShimmerBox(width: 180, height: 28),
+              const SizedBox(height: 24),
+              ShimmerBox(width: double.infinity, height: 130, borderRadius: 20),
+              const SizedBox(height: 24),
+              const StatCardsSkeleton(),
+              const SizedBox(height: 24),
+              ShimmerBox(width: 120, height: 18),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: ShimmerBox(width: double.infinity, height: 120, borderRadius: 18)),
+                  const SizedBox(width: 12),
+                  Expanded(child: ShimmerBox(width: double.infinity, height: 120, borderRadius: 18)),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

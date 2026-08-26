@@ -17,6 +17,7 @@ import '../../features/explore/presentation/screens/scholarship_screen.dart';
 import '../../features/explore/presentation/screens/career_quiz_screen.dart';
 import '../../features/explore/presentation/screens/programs_explorer_screen.dart';
 import '../../features/explore/presentation/screens/campus_screen.dart';
+import '../../features/explore/presentation/screens/university_reviews_screen.dart'; // #2
 import '../../features/tools/presentation/screens/tools_screen.dart';
 import '../../features/tools/presentation/screens/gpa_calculator_screen.dart';
 import '../../features/tools/presentation/screens/cgpa_calculator_screen.dart';
@@ -25,6 +26,8 @@ import '../../features/tools/presentation/screens/target_gpa_screen.dart';
 import '../../features/tools/presentation/screens/merit_calculator_screen.dart';
 import '../../features/tools/presentation/screens/eligibility_checker_screen.dart';
 import '../../features/tools/presentation/screens/grade_calculator_screen.dart';
+import '../../features/tools/presentation/screens/fee_comparison_screen.dart'; // #3
+import '../../features/tools/presentation/screens/admission_probability_screen.dart'; // #5
 import '../../features/track/presentation/screens/track_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/academics/presentation/screens/semester_manager_screen.dart';
@@ -37,7 +40,7 @@ import '../../features/tools/presentation/screens/university_match_screen.dart';
 import '../../features/ai_assistant/presentation/screens/ai_assistant_screen.dart';
 import '../../features/jobs/presentation/screens/jobs_screen.dart';
 import '../../features/community/presentation/screens/discussions_screen.dart';
-import '../../features/parent/presentation/screens/parent_mode_screen.dart'; // Module 39
+import '../../features/parent/presentation/screens/parent_mode_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -50,7 +53,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: RouteNames.forgotPassword, name: 'forgot-password', builder: (context, state) => const ForgotPasswordScreen()),
       GoRoute(path: RouteNames.onboarding, name: 'onboarding', builder: (context, state) => const OnboardingScreen()),
 
-      // Standalone routes
+      // Standalone routes (pushed, not go'd — so back button works)
       GoRoute(path: '/scholarships', name: 'scholarships', builder: (context, state) => const ScholarshipScreen()),
       GoRoute(path: '/career-quiz', name: 'career-quiz', builder: (context, state) => const CareerQuizScreen()),
       GoRoute(path: '/programs', name: 'programs-explorer', builder: (context, state) => const ProgramsExplorerScreen()),
@@ -59,6 +62,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: RouteNames.jobs, name: 'jobs', builder: (context, state) => const JobsScreen()),
       GoRoute(path: RouteNames.community, name: 'community', builder: (context, state) => const DiscussionsScreen()),
       GoRoute(path: RouteNames.parentMode, name: 'parent-mode', builder: (context, state) => const ParentModeScreen()),
+
+      // #2 — University Reviews
+      GoRoute(
+        path: '/reviews/:id',
+        name: 'reviews',
+        builder: (context, state) => UniversityReviewsScreen(
+          universityId: state.pathParameters['id']!,
+          universityName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => AppShell(navigationShell: navigationShell),
@@ -92,6 +105,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 GoRoute(path: 'compare', name: 'compare', builder: (context, state) => const CompareScreen()),
                 GoRoute(path: 'test-prep', name: 'test-prep', builder: (context, state) => const TestPrepScreen()),
                 GoRoute(path: 'match', name: 'university-match', builder: (context, state) => const UniversityMatchScreen()),
+                GoRoute(path: 'fee-compare', name: 'fee-compare', builder: (context, state) => const FeeComparisonScreen()), // #3
+                GoRoute(path: 'probability', name: 'admission-probability', builder: (context, state) => const AdmissionProbabilityScreen()), // #5
               ],
             ),
           ]),
